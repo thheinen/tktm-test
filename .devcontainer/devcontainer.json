@@ -35,6 +35,13 @@
           "redhat.vscode-yaml",
           "VisualStudioExptTeam.vscodeintellicode"
         ]
+      },
+      "codespaces": {
+        "repositories": {
+          "thheinen/tktm-test": {
+            "permissions": "write-all"
+          }
+        }
       }
     },
   

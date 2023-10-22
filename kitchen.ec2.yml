@@ -1,0 +1,21 @@
+---
+driver:
+  name: ec2
+  subnet_filter:
+    tag: 'Name'
+    value: '*public*'
+  metadata_options:
+    http_tokens: required
+    http_put_response_hop_limit: 1
+    instance_metadata_tags: enabled
+  associate_public_ip: true
+  interface: public
+  skip_cost_warning: true
+  instance_type: t3a.medium
+  iam_profile_name: TestKitchen
+
+platforms:
+  - name: amazon2
+  - name: amazon2-arm64
+    driver:
+      instance_type: t4g.medium

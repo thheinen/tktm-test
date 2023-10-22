@@ -1,0 +1,14 @@
+---
+provisioner:
+  provisioner: chef_infra
+  deprecations_as_errors: true
+ 
+  # transition until chef_target exists
+  install_strategy: none
+
+verifier:
+  name: inspec
+
+suites:
+  - name: default
+    named_run_list: tm_2019
