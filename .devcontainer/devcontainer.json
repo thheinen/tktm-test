@@ -1,0 +1,51 @@
+{
+    "name": "Chef-Workstation",
+    "build": {
+      "dockerfile": "Dockerfile",
+      "args": {
+        "CHEFWS_VERSION": "23.9.1050"
+      }
+    },
+    "features": {
+      "ghcr.io/devcontainers/features/aws-cli:1": {},
+      "ghcr.io/devcontainers/features/common-utils:1": {
+        "installZsh": false,
+        "installOhMyZsh": false
+      }
+    },
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "editor.renderFinalNewline": "on",
+          "editor.renderWhitespace": "all",
+          "editor.trimAutoWhitespace": true,
+          "files.exclude": {
+          },
+          "git.allowForcePush": true,
+          "git.alwaysSignOff": true
+        },
+        "extensions": [
+          "actboy168.tasks",
+          "darkriszty.markdown-table-prettify",
+          "editorconfig.editorconfig",
+          "elagil.pre-commit-helper",
+          "gruntfuggly.todo-tree",
+          "kevinkyang.auto-comment-blocks",
+          "mohsen1.prettify-json",
+          "redhat.vscode-yaml",
+          "VisualStudioExptTeam.vscodeintellicode"
+        ]
+      }
+    },
+  
+    "mounts": [
+      "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,readonly,type=bind",
+      "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,readonly,type=bind"
+    ],
+  
+    "remoteUser": "vscode",
+    "remoteEnv": {
+      "PATH": "/home/vscode/bin:/home/vscode/.local/bin:${containerEnv:PATH}"
+    },
+    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true"
+  }
