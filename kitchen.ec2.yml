@@ -14,5 +14,10 @@ driver:
   instance_type: t3a.medium
   iam_profile_name: TestKitchen
 
+  # security_group_cidr_ip: <%= require 'open-uri'; URI('http://checkip.amazonaws.com').read.chop %>/32
+  # user_data: |
+  #   \#!/bin/bash
+  #   sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
+
 platforms:
   - name: ubuntu-22.04

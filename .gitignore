@@ -1,3 +1,4 @@
 .envrc
-Policyfile.lock.json
 .kitchen/*
+nodes/*
+Policyfile.lock.json

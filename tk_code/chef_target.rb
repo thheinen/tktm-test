@@ -27,9 +27,11 @@ module Kitchen
 
       # TODO: Theoretically could adapt this to use Habitat for explicit version request
       default_config :install_strategy, "none"
-      def install_command
-        ""
-      end
+      default_config :sudo, true
+
+      def install_command; ""; end
+      def init_command; ""; end
+      def prepare_command; ""; end
 
       def chef_args(client_rb_filename)
         # Dummy execution to initialize and test remote connection (TODO: better?)
@@ -39,8 +41,14 @@ module Kitchen
         check_transport(connection)
         check_local_chef_client
 
+        # TODO
+        instance_name = instance.name
+        credentials_file = File.join(kitchen_basepath, '.kitchen', instance_name + '.ini')
+        File.write(credentials_file, connection.credentials_file)
+
         super.concat([
-          "--target #{connection.train_uri}"
+          "--target #{instance_name}",
+          "--credentials #{credentials_file}"
         ])
       end
 
@@ -52,7 +60,7 @@ module Kitchen
         debug('Checking for active transport')
 
         unless connection.respond_to? 'train_uri'
-          error("Chef Target Mode provisioner requires a Train-based transport like kitchen-transport-train")
+          error('Chef Target Mode provisioner requires a Train-based transport like kitchen-transport-train')
           raise
         end
 
@@ -79,6 +87,59 @@ module Kitchen
         end
 
         debug("Chef Infra found and version constraints match")
+      end
+
+      def kitchen_basepath
+        instance.driver.config[:kitchen_root]
+      end
+
+      def create_sandbox
+        super
+
+        # Change config.rb to point to the local sandbox path, not to /tmp/kitchen
+        config[:root_path] = sandbox_path
+        prepare_config_rb
+      end
+
+      def call(state)
+        remote_connection = instance.transport.connection(state)
+        local_connection  = Train.create("local").connection # TODO
+
+        config[:uploads].to_h.each do |locals, remote|
+          debug("Uploading #{Array(locals).join(", ")} to #{remote}")
+          remote_connection.upload(locals.to_s, remote)
+        end
+
+        # no installation
+        # conn.run_command(init_command)
+
+        create_sandbox
+
+        # conn.run_command(prepare_command)
+
+        # in base transport
+        # local_connection.execute_with_retry(
+        #   run_command,
+        #   config[:retry_on_exit_code],
+        #   config[:max_retries],
+        #   config[:wait_for_retry]
+        # )
+
+        debug('Executing: ' + run_command)
+
+        result = local_connection.run_command(run_command)
+        logger << result.stdout
+
+        info("Downloading files from #{instance.to_str}")
+        config[:downloads].to_h.each do |remotes, local|
+          debug("Downloading #{Array(remotes).join(", ")} to #{local}")
+          remote_connection.download(remotes, local)
+        end
+        debug("Download complete")
+      rescue Kitchen::Transport::TransportFailed => ex
+        raise ActionFailed, ex.message
+      ensure
+        cleanup_sandbox
       end
     end
   end

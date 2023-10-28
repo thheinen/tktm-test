@@ -1,8 +1,5 @@
 ---
 provisioner:
-  # name: chef_infra
-  # install_strategy: none
-
   name: chef_target
 
 transport:
