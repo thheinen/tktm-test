@@ -15,7 +15,4 @@ driver:
   iam_profile_name: TestKitchen
 
 platforms:
-  - name: amazon2
-  - name: amazon2-arm64
-    driver:
-      instance_type: t4g.medium
+  - name: ubuntu-22.04

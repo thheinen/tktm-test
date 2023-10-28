@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative "chef_base"
+require_relative "chef_infra"
 
 module Kitchen
   module Provisioner
@@ -32,22 +32,32 @@ module Kitchen
       end
 
       def chef_args(client_rb_filename)
-        # TODO: Actually, Kitchen should probably default to Train as base now?
-        #       Alternative: Hack SSH/WinRM, but detect and forward on "kitchen-transport-train"
+        # Dummy execution to initialize and test remote connection (TODO: better?)
+        connection = instance.remote_exec('')
 
-        # instance.transport
-        # instance.driver
-        # instance.remote_exec(...)
-        target_definition = "ssh://#{instance.driver.to_s}"
+        # TODO: Feels like the wrong spot to do this
+        check_transport(connection)
+        check_local_chef_client
 
         super.concat([
-          "--target #{target_definition}"
+          "--target #{connection.train_uri}"
         ])
       end
 
       # TODO
       # - set `instance.transport` to `null` (avoid script execution)
       # - twist execution to run... differently
+
+      def check_transport(connection)
+        debug('Checking for active transport')
+
+        unless connection.respond_to? 'train_uri'
+          error("Chef Target Mode provisioner requires a Train-based transport like kitchen-transport-train")
+          raise
+        end
+
+        debug('Kitchen transport responds to train_uri function call, as required')
+      end
 
       def check_local_chef_client
         # - check for `chef-client` locally + right version
@@ -63,7 +73,7 @@ module Kitchen
         minimum_version = Gem::Version.new(MIN_VERSION_REQUIRED)
         installed_version = Gem::Version.new(client_version)
 
-        if act < min
+        if installed_version < minimum_version
           error("Found Chef Infra version #{installed_version}, but require #{minimum_version} for Target Mode")
           raise
         end

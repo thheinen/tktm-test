@@ -1,2 +1,3 @@
 .envrc
+Policyfile.lock.json
 .kitchen/*

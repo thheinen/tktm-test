@@ -1,10 +1,12 @@
 ---
 provisioner:
-  provisioner: chef_infra
-  deprecations_as_errors: true
- 
-  # transition until chef_target exists
-  install_strategy: none
+  # name: chef_infra
+  # install_strategy: none
+
+  name: chef_target
+
+transport:
+  name: train
 
 verifier:
   name: inspec
