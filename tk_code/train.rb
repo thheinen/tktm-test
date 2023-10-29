@@ -62,7 +62,7 @@ module Kitchen
           # TODO: is this part of TK? or a new dependency of kitchen-transport-train?
           require 'toml-rb' unless defined?(TomlRB)
 
-          "[#{instance_name}]\n" + TomlRB.dump(config)
+          "['#{instance_name}']\n" + TomlRB.dump(config)
         end
 
         def execute(command)

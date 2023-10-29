@@ -103,7 +103,6 @@ module Kitchen
 
       def call(state)
         remote_connection = instance.transport.connection(state)
-        local_connection  = Train.create("local").connection # TODO
 
         config[:uploads].to_h.each do |locals, remote|
           debug("Uploading #{Array(locals).join(", ")} to #{remote}")
@@ -111,24 +110,23 @@ module Kitchen
         end
 
         # no installation
-        # conn.run_command(init_command)
-
         create_sandbox
+        # no prepare command
 
-        # conn.run_command(prepare_command)
-
-        # in base transport
-        # local_connection.execute_with_retry(
+        # TODO: in base transport - reimplement
+        # execute_with_retry(
         #   run_command,
         #   config[:retry_on_exit_code],
         #   config[:max_retries],
         #   config[:wait_for_retry]
         # )
 
-        debug('Executing: ' + run_command)
-
-        result = local_connection.run_command(run_command)
-        logger << result.stdout
+        # Stream output to logger (TODO: check if this sets exit code)
+        require 'open3'
+        stdout, _sterr, _exitcode = Open3.popen2e(run_command)
+        Open3.popen2e(run_command) do |_stdin, output, _thread|
+          output.each { |line| logger << line }
+        end
 
         info("Downloading files from #{instance.to_str}")
         config[:downloads].to_h.each do |remotes, local|
