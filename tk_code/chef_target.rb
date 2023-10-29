@@ -48,7 +48,8 @@ module Kitchen
 
         super.concat([
           "--target #{instance_name}",
-          "--credentials #{credentials_file}"
+          "--credentials #{credentials_file}",
+          # "--log_level trace"
         ])
       end
 
@@ -140,5 +141,19 @@ module Kitchen
         cleanup_sandbox
       end
     end
+
+    # Speed up Ohai for development by disabling plugins??
+    # def default_config_rb
+    #   default_config_rb.merge({
+    #     ohai: {
+    #       disabled_plugins: %i[
+    #         Azure C DigitalOcean DMI Docker Elixir Erlang Eucalyptus Freebsd
+    #         Gce Go Groovy Haskell Java Joyent Linode Lua Mono Nodejs Openstack
+    #         Perl Php Powershell Rackspace Rust Scala Scaleway Shard Softlayer
+    #         Virtualbox Vmware Zpools
+    #       ]
+    #     }
+    #   })
+    # end
   end
 end
