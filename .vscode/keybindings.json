@@ -1,0 +1,12 @@
+[
+    {
+      "key": "ctrl+d",
+      "command": "workbench.action.tasks.runTask",
+      "args": "Deploy chef_target"
+    },
+    {
+      "key": "shift+ctrl+7",
+      "command": "editor.action.commentLine",
+      "when": "editorTextFocus && !editorReadonly"
+    }
+]

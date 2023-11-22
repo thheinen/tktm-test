@@ -17,12 +17,14 @@
       "vscode": {
         "settings": {
           "editor.renderFinalNewline": "on",
+          "aws.telemetry": false,
           "editor.renderWhitespace": "all",
           "editor.trimAutoWhitespace": true,
           "files.exclude": {
           },
           "git.allowForcePush": true,
-          "git.alwaysSignOff": true
+          "git.alwaysSignOff": true,
+          "terminal.integrated.scrollback": 20000
         },
         "extensions": [
           "actboy168.tasks",
@@ -34,15 +36,34 @@
           "mohsen1.prettify-json",
           "redhat.vscode-yaml",
           "SanaAjani.taskrunnercode",
+          "shopify.ruby-lsp",
           "VisualStudioExptTeam.vscodeintellicode"
         ]
       },
       "codespaces": {
         "repositories": {
+          "thheinen/chef": {
+            "permissions": "write-all"
+          },
           "thheinen/tktm-test": {
             "permissions": "write-all"
           }
         }
+      }
+    },
+
+    "secrets": {
+      "AWS_REGION": {
+        "description": "Region to start TK instances in. Example: eu-west-1"
+      },
+      "AWS_ACCESS_KEY_ID": {
+        "description": "Access Key ID for your AWS account"
+      },
+      "AWS_SECRET_ACCESS_KEY": {
+        "description": "Secret Access Key for your AWS account"
+      },
+      "KITCHEN_LOCAL_YAML": {
+        "description": "Set this to address a specific cloud config in the repo. Recommended: kitchen.ec2.yml"
       }
     },
   

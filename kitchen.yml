@@ -1,13 +1,15 @@
 ---
 provisioner:
   name: chef_target
+  log_level: <%= ENV['CHEF_LOG_LEVEL'] || "auto" %>
 
 transport:
   name: train
+  user: root
 
 verifier:
   name: inspec
 
 suites:
   - name: default
-    named_run_list: tm_2019
+    named_run_list: tm_shellout
