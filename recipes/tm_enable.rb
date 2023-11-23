@@ -1,7 +1,4 @@
-# Only Test Resources which use shell_out or shell_out!
+# Only Test Resources which use IO
 
-cron 'Good vibes' do
-  command "echo 'good vibes'"
-  time :daily
-end
+package 'apache2'
 
