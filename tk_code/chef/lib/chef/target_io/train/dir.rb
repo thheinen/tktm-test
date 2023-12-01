@@ -24,6 +24,7 @@ module TargetIO
         def unlink(dir_name)
           ::ChefIO::Train::FileUtils.rmdir(dir_name)
         end
+      end
     end
   end
 end

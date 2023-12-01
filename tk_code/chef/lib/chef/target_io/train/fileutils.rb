@@ -27,7 +27,7 @@ module TargetIO
         end
 
         def chown(user, group, list, noop: nil, verbose: nil)
-          cmd = sprintf(('chown %s %s', (group ? "#{user}:#{group}" : user || ':'), list.join(' ')))
+          cmd = sprintf('chown %s %s', (group ? "#{user}:#{group}" : user || ':'), list.join(' '))
 
           $logger.debug cmd if verbose
           return if noop
@@ -50,7 +50,6 @@ module TargetIO
         # compare_file
         # compare_stream
 
-        alias_method :copy, :cp
         def cp(src, dest, preserve: nil, noop: nil, verbose: nil)
           cmd = "cp#{preserve ? ' -p' : ''} #{[src,dest].flatten.join ' '}"
 
@@ -59,6 +58,7 @@ module TargetIO
 
           __run_command(cmd)
         end
+        alias_method :copy, :cp
 
         def cp_lr(src, dest, noop: nil, verbose: nil, dereference_root: true, remove_destination: false)
           cmd = "cp -lr#{remove_destination ? ' --remove-destination' : ''} #{[src,dest].flatten.join ' '}"
@@ -96,7 +96,6 @@ module TargetIO
           __run_command(cmd)
         end
 
-        alias_method :link, :ln
         def ln(src, dest, force: nil, noop: nil, verbose: nil)
           cmd = "ln#{force ? ' -f' : ''} #{[src,dest].flatten.join ' '}"
 
@@ -105,8 +104,8 @@ module TargetIO
 
           __run_command(cmd)
         end
+        alias_method :link, :ln
 
-        alias_method :symlink, :ln_s
         def ln_s(src, dest, force: nil, noop: nil, verbose: nil)
           cmd = "ln -s#{force ? 'f' : ''} #{[src,dest].flatten.join ' '}"
 
@@ -115,6 +114,7 @@ module TargetIO
 
           __run_command(cmd)
         end
+        alias_method :symlink, :ln_s
 
         def ln_sf(src, dest, noop: nil, verbose: nil)
           ln_s(src, dest, force: true, noop: noop, verbose: verbose)
@@ -129,8 +129,6 @@ module TargetIO
           __run_command(cmd)
         end
 
-        alias_method :makedirs, :mkdir_p
-        alias_method :mkpath, :mkdir_p
         def mkdir_p(list, mode: nil, noop: nil, verbose: nil)
           cmd = "mkdir -p #{mode ? ('-m %03o ' % mode) : ''}#{list.join ' '}"
 
@@ -139,6 +137,8 @@ module TargetIO
 
           __run_command(cmd)
         end
+        alias_method :makedirs, :mkdir_p
+        alias_method :mkpath, :mkdir_p
 
         def mv(src, dest, force: nil, noop: nil, verbose: nil, secure: nil)
           cmd = "mv#{force ? ' -f' : ''} #{[src,dest].flatten.join ' '}"
@@ -184,12 +184,12 @@ module TargetIO
           __run_command(cmd)
         end
 
-        alias_method :remove_entry, :rm_rf
-        alias_method :rmtree, :rm_rf
-        alias_method :safe_unlink, :rm_rf
         def rm_rf(list, noop: nil, verbose: nil, secure: nil)
           rm_r(list, force: true, noop: noop, verbose: verbose, secure: secure)
         end
+        alias_method :remove_entry, :rm_rf
+        alias_method :rmtree, :rm_rf
+        alias_method :safe_unlink, :rm_rf
 
         def rmdir(list, parents: nil, noop: nil, verbose: nil)
           cmd = "rmdir #{parents ? '-p ' : ''}#{list.join ' '}"
