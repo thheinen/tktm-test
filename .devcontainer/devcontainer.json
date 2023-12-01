@@ -74,7 +74,8 @@
   
     "remoteUser": "vscode",
     "remoteEnv": {
-      "PATH": "/home/vscode/bin:/home/vscode/.local/bin:${containerEnv:PATH}"
+      "PATH": "/home/vscode/bin:/home/vscode/.local/bin:${containerEnv:PATH}",
+      "CHEF_LICENSE": "accept-silent"
     },
-    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true"
+    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true; gem install kitchen-transport-train; ./deploy.sh"
   }
