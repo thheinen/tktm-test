@@ -361,6 +361,7 @@ logger.warn("LINUX: #{path}")
 
           channel.on_request("exit-status") do |_, data|
             exit_status = data.read_long
+            #session.channels.each { |_, channel| channel.close }
           end
 
           channel.on_request("exit-signal") do |_, data|
@@ -369,8 +370,8 @@ logger.warn("LINUX: #{path}")
 
           # FIXME: let's be a bit destructive (and successful)
           channel.on_close do
-            session.channels.each { |id, channel| channel.close }
           end
+          # ... but now we got no output. Ooopsi-Daisy.
         end
       end
 
