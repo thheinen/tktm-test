@@ -240,7 +240,6 @@ class Train::Transports::SSH
       elsif os.windows?
         Train::File::Remote::Windows.new(self, path, *args)
       else
-logger.warn("LINUX: #{path}")
         Train::File::Remote::Linux.new(self, path, *args)
       end
     end
@@ -361,17 +360,16 @@ logger.warn("LINUX: #{path}")
 
           channel.on_request("exit-status") do |_, data|
             exit_status = data.read_long
-            #session.channels.each { |_, channel| channel.close }
+
           end
 
           channel.on_request("exit-signal") do |_, data|
             exit_status = data.read_long
           end
 
-          # FIXME: let's be a bit destructive (and successful)
           channel.on_close do
+            session.channels.each { |_, channel| channel.close }
           end
-          # ... but now we got no output. Ooopsi-Daisy.
         end
       end
 

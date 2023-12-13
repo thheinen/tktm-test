@@ -158,11 +158,11 @@ module Mixlib
           # POSIX compatible (2.7.4)
           # FIXME: Should be in Train for parity, but would need to be in
           #        base_connection, which is a bit tough.
-          if options[:input] && !ChefUtils.windows?
-            args = Array(args)
-            args.concat ["<<<'COMMANDINPUT'\n", options[:input] + "\n", "COMMANDINPUT\n"]
-            logger.debug __join_whitespace(args)
-          end
+          # if options[:input] && !ChefUtils.windows?
+          #   args = Array(args)
+          #   args.concat ["<<<'COMMANDINPUT'\n", options[:input] + "\n", "COMMANDINPUT\n"]
+          #   logger.debug __join_whitespace(args)
+          # end
 
           FakeShellOut.new(args, options, __transport_connection.run_command(join_whitespace(args), options)) # FIXME: train should accept run_command(*args)
         else
