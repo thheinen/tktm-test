@@ -164,7 +164,7 @@ module Mixlib
           #   logger.debug __join_whitespace(args)
           # end
 
-          FakeShellOut.new(args, options, __transport_connection.run_command(join_whitespace(args), options)) # FIXME: train should accept run_command(*args)
+          FakeShellOut.new(args, options, __transport_connection.run_command(__join_whitespace(args), options)) # FIXME: train should accept run_command(*args)
         else
           cmd = if options.empty?
                   Mixlib::ShellOut.new(*args)
