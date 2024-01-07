@@ -77,5 +77,5 @@
       "PATH": "/home/vscode/bin:/home/vscode/.local/bin:${containerEnv:PATH}",
       "CHEF_LICENSE": "accept-silent"
     },
-    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true; gem install kitchen-transport-train; ./deploy.sh"
+    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true; gem install kitchen-transport-train"
   }

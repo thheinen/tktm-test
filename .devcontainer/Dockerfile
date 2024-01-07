@@ -11,7 +11,7 @@ RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install --no-install-recommends --yes \
         lsb-release vim sudo curl wget apt-utils dialog apt-transport-https ca-certificates unzip software-properties-common \
-        yamllint python3-pip git less jq ssh \
+        yamllint python3-pip git less jq ssh patchutils \
     && apt-get autoremove --yes \
     && apt-get clean --yes \
     && rm -rf /var/lib/apt/lists/* \

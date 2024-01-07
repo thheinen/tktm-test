@@ -2,3 +2,4 @@
 .kitchen/*
 nodes/*
 Policyfile.lock.json
+tk_code/deprecated/*

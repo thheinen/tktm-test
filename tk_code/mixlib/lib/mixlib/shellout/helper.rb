@@ -163,7 +163,8 @@ module Mixlib
           #   args.concat ["<<<'COMMANDINPUT'\n", options[:input] + "\n", "COMMANDINPUT\n"]
           #   logger.debug __join_whitespace(args)
           # end
-
+          logger.debug args.to_s
+          logger.debug __join_whitespace(args)
           FakeShellOut.new(args, options, __transport_connection.run_command(__join_whitespace(args), options)) # FIXME: train should accept run_command(*args)
         else
           cmd = if options.empty?
@@ -202,7 +203,8 @@ module Mixlib
           @stdout = result.stdout
           @stderr = result.stderr
           @exitstatus = result.exit_status
-          @valid_exit_codes = options[:returns] || [0]
+          @valid_exit_codes = Array(options[:returns] || 0)
+
           @status = OpenStruct.new(success?: (@valid_exit_codes.include? exitstatus))
         end
 

@@ -12,4 +12,4 @@ verifier:
 
 suites:
   - name: default
-    named_run_list: tm_shellout
+    named_run_list: tm_2019
