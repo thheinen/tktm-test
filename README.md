@@ -78,6 +78,8 @@ __Reason:__
 
 _Unknown_
 
-Usually happens when SSH connection to a newly created instance on AWS does not work. Works on GitHub Codespaces, but fails locally - while permitted IPs are set in `kitchen.ec2.yml` dynamically.
+Usually happens when SSH connection to a newly created instance on AWS does not work. Seems to work on GitHub Codespaces, but fails locally - while permitted IPs are set in `kitchen.ec2.yml` dynamically.
 
 _Caution:_ sometimes does not remove the faulty instance, which continues to run and incur costs.
+
+Likely cause: Not reverting from the `train` transport to the standard one

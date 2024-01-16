@@ -142,7 +142,7 @@ module TargetIO
               ::File.send(m, *args) # block?
 
             elsif passthru.include? m
-              $logger.debug 'File::' + m.to_s + ' passed to Train.file.' + m.to_s
+              Chef::Log.debug 'File::' + m.to_s + ' passed to Train.file.' + m.to_s
 
               file_name, other_args = args[0], args[1..]
 
@@ -150,12 +150,12 @@ module TargetIO
               file.send(m, *other_args) # block?
 
             elsif filestat.include? m
-              $logger.debug 'File::' + m.to_s + ' passed to Train.file.stat.' + m.to_s
+              Chef::Log.debug 'File::' + m.to_s + ' passed to Train.file.stat.' + m.to_s
 
               __transport_connection.file(args[0]).stat[m]
 
             elsif redirect.key?(m)
-              $logger.debug 'File::' + m.to_s + ' redirected to Train.file.' + redirect[m].to_s
+              Chef::Log.debug 'File::' + m.to_s + ' redirected to Train.file.' + redirect[m].to_s
 
               file_name, other_args = args[0], args[1..]
 
@@ -168,7 +168,7 @@ module TargetIO
           end
 
           def __transport_connection
-            Chef::Client.transport_connection
+            Chef.run_context&.transport_connection
           end
         end
       end

@@ -2,10 +2,9 @@ module TargetIO
   class Dir
     class << self
       def method_missing(m, *args, &block)
-        target_mode = $remote
-        $logger.debug format('Dir::%s(%s)', m.to_s, args.join(', '))
+        Chef::Log.debug format('Dir::%s(%s)', m.to_s, args.join(', '))
 
-        backend = target_mode ? TrainCompat::Dir : ::Dir
+        backend = ChefConfig::Config.target_mode? ? TrainCompat::Dir : ::Dir
         backend.send(m, *args, &block)
       end
     end
