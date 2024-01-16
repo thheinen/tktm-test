@@ -19,6 +19,10 @@ RUN apt-get update \
     && curl --location-trusted "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" --output /usr/local/bin/direnv --silent \
     && chmod +x /usr/local/bin/direnv
 
+# Apply patches to original Chef tools
+COPY import-patches.sh /tmp
+RUN /tmp/import-patches.sh
+
 # User configuration
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \

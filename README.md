@@ -1,68 +1,83 @@
 # README
 
-TODO
+# Prerequisites
 
-## Logging in `client.rb`
+- Internet Connection
+- Visual Studio Code
+- An AWS account for instances to start in (Test Kitchen)
+- Windows Subsystem for Linux, if on Window
+- Docker installed in WSL 2 or on MacOS
 
-```ruby
-    def run_ohai
-      filter = Chef::Config[:minimal_ohai] ? %w{fqdn machinename hostname platform platform_version ohai_time os os_version init_package} : nil
-      if Chef::Config.target_mode?
-        ohai.transport_connection = transport_connection
-        logger.warn('Running remote Ohai... please wait')
-      end
-      ohai.all_plugins(filter)
-      events.ohai_completed(node)
-    end
+Alternative: Open in GitHub DevContainers and provide AWS credentials. This will fulfill all prerequisites
+
+# Getting Started
+
+- Open in Visual Studio Code
+- When asked "Dev Container detected" select to open in Dev Container. Initial build can take 5-10 minutes due to dependencies
+- You will end up in a preconfigured environment and can open a Terminal inside of it (if not done automatically)
+
+Workaround:
+- execute `./import-patches.sh` initially to apply various patches to the stock projects (Chef, Kitchen, Kitchen Driver, Train, ...)
+
+# Remark on Handling Changes in the Fork Branches
+
+Whenever changes in any of the external repositories (usually in the `thheinen/target-mode` branches) occur, you need to rebuild the container and rerun the `import-patches.sh` script
+
+You can trigger a rebuild of the container via Ctrl-Shift-P and then "Dev Container: Rebuild Container". It is not necessary to build without cache. After the rebuild, apply the patches with the mentioned script again.
+
+# Known Issues / Remediations
+
+## Test Kitchen: Could not load the 'chef_target_provisioner'
+
+__Error:__
+
+After any `kitchen` command, the following error is shown:
+```
+>>>>>> Message: Could not load the 'chef_target' provisioner from the load path
 ```
 
-```ruby
-      # Join arguments into a string.
-      # 
-      # If the argument ends with a whitespace, use it as-is. Otherwise, add
-      # a space at the end
-      # 
-      # @param args [String] variable number of string arguments
-      # @return [String] merged string
-      #
-      def __join_whitespace(*args)
-        args.reduce { |output, e| output + (e.rstrip == e ? '' : ' ') + e }
-      end
+__Reason:__
 
-      def __shell_out_command(*args, **options)
-        if __transport_connection
-          # POSIX compatible (2.7.4)
-          # FIXME: Should be in Train for parity, but would need to be in
-          #        base_connection, which is a bit tough.
-          if options[:input] && !ChefUtils.windows?
-            args = Array(args)
-            args.concat ["<<<'COMMANDINPUT'\n", options[:input] + "\n", "COMMANDINPUT\n"]
-            logger.debug __join_whitespace(args)
-          end
+The required patches were not applied (see "Getting Started" and `import-patches.sh`)
 
-          FakeShellOut.new(args, options, __transport_connection.run_command(join_whitespace(args), options)) # FIXME: train should accept run_command(*args)
-        else
-      # ...
+## Test Kitchen: No instances for regex
 
-      class FakeShellOut
-        attr_reader :stdout, :stderr, :exitstatus, :status
+__Error:__
 
-        def initialize(args, options, result)
-          @args = args
-          @options = options
-          @stdout = result.stdout
-          @stderr = result.stderr
-          @exitstatus = result.exit_status
-          @valid_exit_codes = options[:returns] || [0]
-          @status = OpenStruct.new(success?: (@valid_exit_codes.include? exitstatus))
-        end
-
-        def error?
-          @valid_exit_codes.none?(exitstatus)
-        end
-
-        def error!
-          raise Mixlib::ShellOut::ShellCommandFailed, "Unexpected exit status of #{exitstatus} running #{@args}" if error?
-        end
-      end
+After `kitchen list` or similar commands the following error is shown:
 ```
+No instances for regex `', try running `kitchen list'
+```
+
+__Reason:__
+
+All provider (AWS) specific resources are in `kitchen.ec2.yml` which is not the standard file for a local Kitchen configuration.
+Execute `export KITCHEN_LOCAL_YML="kitchen.ec2.yml"` and execute the kitchen command again
+
+## Test Kitchen: "requires a Train-based transport"
+
+__Error:__
+
+Chef Target Mode provisioner requires a Train-based transport like kitchen-transport-train
+
+__Reason:__
+
+You need to switch the Train transport to `name: train` to enable exchange of connection data between the transport and Chef itself.
+
+## Test Kitchen: "can't modify frozen String"
+
+__Error:__
+
+After executing `kitchen create` the following error is displayed:
+
+```
+Failed to complete #create action: [can't modify frozen String: "" in the specified region eu-west-1.
+```
+
+__Reason:__
+
+_Unknown_
+
+Usually happens when SSH connection to a newly created instance on AWS does not work. Works on GitHub Codespaces, but fails locally - while permitted IPs are set in `kitchen.ec2.yml` dynamically.
+
+_Caution:_ sometimes does not remove the faulty instance, which continues to run and incur costs.

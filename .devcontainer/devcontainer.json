@@ -66,12 +66,12 @@
         "description": "Set this to address a specific cloud config in the repo. Recommended: kitchen.ec2.yml"
       }
     },
-  
+
     "mounts": [
       "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,readonly,type=bind",
       "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,readonly,type=bind"
     ],
-  
+
     "remoteUser": "vscode",
     "remoteEnv": {
       "PATH": "/home/vscode/bin:/home/vscode/.local/bin:${containerEnv:PATH}",

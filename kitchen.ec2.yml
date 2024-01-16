@@ -1,6 +1,7 @@
 ---
 driver:
   name: ec2
+  # Will automatically select subnets if you have tagged them with "public" in their name
   subnet_filter:
     tag: 'Name'
     value: '*public*'
@@ -12,12 +13,15 @@ driver:
   interface: public
   skip_cost_warning: true
   instance_type: t3a.medium
+  # Need to predeploy a role like this which allows to create/destroy instances
   iam_profile_name: TestKitchen
 
+  # Limit to developer IP and enable the SSH key for root login (needed for Target Mode)
   security_group_cidr_ip: <%= require 'open-uri'; URI('http://checkip.amazonaws.com').read.chop %>/32
   user_data: |
     #!/bin/bash
     sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
+  delete_on_termination: false
 
 platforms:
   - name: ubuntu-22.04
