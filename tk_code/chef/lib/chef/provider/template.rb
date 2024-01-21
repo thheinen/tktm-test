@@ -39,7 +39,7 @@ class Chef
         super
 
         requirements.assert(:create, :create_if_missing) do |a|
-          a.assertion { ::TargetIO::File.exist?(content.template_location) }
+          a.assertion { ::File.exist?(content.template_location) }
           a.failure_message "Template source #{content.template_location} could not be found."
           a.whyrun "Template source #{content.template_location} does not exist. Assuming it would have been created."
           a.block_action!

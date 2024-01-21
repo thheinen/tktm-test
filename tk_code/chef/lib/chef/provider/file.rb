@@ -96,7 +96,11 @@ class Chef
           # we are updating an existing file
           if managing_content?
             logger.trace("#{new_resource} checksumming file at #{new_resource.path}.")
-            current_resource.checksum(checksum(current_resource.path))
+
+            resource_to_check = current_resource.path
+            resource_to_check = ::TargetIO::File.open(current_resource.path) if ChefConfig::Config.target_mode?
+
+            current_resource.checksum(checksum(resource_to_check))
           else
             # if the file does not exist or is not a file, then the checksum is invalid/pointless
             current_resource.checksum(nil)
@@ -387,7 +391,10 @@ class Chef
         logger.info("#{new_resource} updated file contents #{new_resource.path}")
         if managing_content?
           # save final checksum for reporting.
-          new_resource.final_checksum = checksum(new_resource.path)
+          resource_to_check = new_resource.path
+          resource_to_check = ::TargetIO::File.open(resource_to_check) if ChefConfig::Config.target_mode?
+
+          new_resource.final_checksum = checksum(resource_to_check)
         end
       end
 
@@ -395,7 +402,7 @@ class Chef
         # a nil tempfile is okay, means the resource has no content or no new content
         return if tempfile.nil?
         # but a tempfile that has no path or doesn't exist should not happen
-        if tempfile.path.nil? || !::TargetIO::File.exist?(tempfile.path)
+        if tempfile.path.nil? || !::File.exist?(tempfile.path)
           raise "#{ChefUtils::Dist::Infra::CLIENT} is confused, trying to deploy a file that has no path or does not exist..."
         end
 

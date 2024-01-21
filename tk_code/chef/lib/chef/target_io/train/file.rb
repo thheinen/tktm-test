@@ -87,6 +87,27 @@ module TargetIO
           #   end
           # end
 
+          def realpath(file_name)
+            cmd = "realpath #{file_name}" # coreutils, not MacOSX
+            Chef::Log.debug cmd
+
+            __transport_connection.run_command(cmd).stdout.chop
+          end
+
+          def chown(user, group, src)
+            cmd = "chown #{user||''}:#{group||''} #{src}"
+            Chef::Log.debug cmd
+
+            __transport_connection.run_command(cmd)
+          end
+
+          def chmod(mode_int, file_name)
+            cmd = "chmod #{mode_int} #{file_name}"
+            Chef::Log.debug cmd
+
+            __transport_connection.run_command(cmd)
+          end
+
           # def readlink(file_name)
           #   raise Errno::EINVAL unless symlink?(file_name)
 
@@ -128,17 +149,20 @@ module TargetIO
           def method_missing(m, *args, &block)
             nonio    = %i[extname join dirname path split]
 
-            passthru = %i[basename directory? exist? exists? file? mtime pipe? size socket? symlink?] # gid uid
+            passthru = %i[basename directory? exist? exists? file? path pipe? socket? symlink?]
             redirect = {
               blockdev?: :block_device?,
               chardev?: :character_device?
             }
-            filestat = %i[mtime] #mode
+            filestat = %i[gid group mode mtime owner selinux_label size uid]
 
-            # In Train but not File/File::Stat:
-            # group link_path linked_to? mode? owner selinux_label shallow_link_path type grouped_into? mounted sanitize_filename unix_mode_mask
+            if m == :stat
+              Chef::Log.debug 'File::stat passed to Train.file.stat'
 
-            if nonio.include? m
+              require 'ostruct' unless defined?(OpenStruct)
+              OpenStruct.new(__transport_connection.file(args[0]).stat)
+
+            elsif nonio.include? m
               ::File.send(m, *args) # block?
 
             elsif passthru.include? m

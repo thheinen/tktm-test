@@ -62,7 +62,9 @@ Chef Target Mode provisioner requires a Train-based transport like kitchen-trans
 
 __Reason:__
 
-You need to switch the Train transport to `name: train` to enable exchange of connection data between the transport and Chef itself.
+1. You need to switch the Train transport to `name: train` to enable exchange of connection data between the transport and Chef itself in __converge state__
+
+2. You might have run `kitchen converge` as an all-in-one lifecycle step to create and converge the machine. As due to a bug you have to switch the Kitchen trainsport between standard `ssh` and `train` between both phases, run `kitchen create` first with the standard setting and then modify `kitchen.yml` to use the `name: train` statement for the `kitchen converge` step.
 
 ## Test Kitchen: "can't modify frozen String"
 

@@ -10,25 +10,33 @@
 #   action [:enable, :start]
 # end
 
-execute 'add-apt-repository ppa:deadsnakes/ppa --yes'
-execute 'apt-get clean'
-execute 'apt-get update'
-execute 'apt-get install python3.12 --yes'
+# execute 'add-apt-repository ppa:deadsnakes/ppa --yes'
+# execute 'apt-get clean'
+# execute 'apt-get update'
+# execute 'apt-get install python3.12 --yes'
 
-#alternatives 'python install 3.12' do
-#  link_name '/usr/bin/python3'
-#  path '/usr/bin/python3.12'
-#  priority 100
-#  action :install
-#end
+# alternatives 'python install 3.12' do
+#   link_name '/usr/bin/python3'
+#   path '/usr/bin/python3.12'
+#   priority 100
+#   action :install
+# end
 
 file '/tmp/basefile' do
-  content 'This is a placeholder'
-  mode '0755'
+  content 'This is a placeholder file'
+  mode '0754'
 end
 
-#apt_preference 'deadsnakes' do
-  #pin          'version 3.12'
-  #pin_priority '700'
-#end
+template '/tmp/example' do
+  source 'example.erb'
+  variables({
+    test: 'farce'
+  })
+  mode '0654'
+end
+
+# apt_preference 'deadsnakes' do
+#   pin          'version 3.12'
+#   pin_priority '700'
+# end
 
