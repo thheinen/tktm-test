@@ -3,3 +3,4 @@
 nodes/*
 Policyfile.lock.json
 tk_code/deprecated/*
+old/tk_code/*

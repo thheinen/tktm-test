@@ -25,15 +25,17 @@
 file '/tmp/basefile' do
   content 'This is a placeholder file'
   mode '0754'
+  owner 'nobody'
+  group 'nogroup'
 end
 
-template '/tmp/example' do
-  source 'example.erb'
-  variables({
-    test: 'farce'
-  })
-  mode '0654'
-end
+#template '/tmp/example' do
+#  source 'example.erb'
+#  variables({
+#    test: 'farce'
+#  })
+#  mode '0654'
+#end
 
 # apt_preference 'deadsnakes' do
 #   pin          'version 3.12'

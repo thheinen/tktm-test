@@ -5,6 +5,7 @@ ARG DIRENV_VERSION=2.32.3
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+ARG CHEF_LICENSE=accept-silent
 
 # System base with common tooling
 RUN apt-get update \

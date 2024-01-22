@@ -15,7 +15,7 @@ module TargetIO
           end
 
           def delete(file_name)
-            cmd = format('rm %<file>s', file_name)
+            cmd = format('rm %s', file_name)
             __transport_connection.run_command(cmd)
           end
 
