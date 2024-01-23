@@ -4,39 +4,33 @@ module TargetIO
       @@cache = {}
 
       class << self
-        # TODO: getpwuid, getgrgid
-
-        def getgrnam(name)
-          content = ::TargetIO::File.readlines("/etc/group")
-
-          entries = __parse_group(content)
-          Chef::Log.debug entries.to_json.to_s
-          data  = entries.detect { |entry| entry['name'] == name }
-          group = ::Etc::Group.new
-          if data
-            group.name   = data['name']
-            group.passwd = data['password']
-            group.gid    = data['gid']
-
-            members      = data['mem'] || ''
-            group.mem    = members.split(',')
-          end
-
-          group
+        def getpwnam(name)
+          __getpw { |entry| entry['user'] == name }
         end
 
-        def getpwnam(name)
-          content = ::TargetIO::File.readlines("/etc/passwd")
+        def getpwuid(uid)
+          __getpw { |entry| entry['uid'] == uid.to_i }
+        end
 
+        def getgrnam(name)
+          __getgr { |entry| entry['name'] == name }
+        end
+
+        def getgrgid(gid)
+          __getgr { |entry| entry['gid'] == gid.to_i }
+        end
+
+        def __getpw(&block)
+          content = ::TargetIO::File.readlines("/etc/passwd")
           entries = __parse_passwd(content)
-          data  = entries.detect { |entry| entry['user'] == name }
+          data    = entries.detect(&block)
 
           passwd = ::Etc::Passwd.new
           if data
             passwd.name   = data['user']
             passwd.passwd = data['password']
-            passwd.uid    = data['uid']
-            passwd.gid    = data['gid']
+            passwd.uid    = data['uid'].to_i
+            passwd.gid    = data['gid'].to_i
             passwd.gecos  = data['desc']
             passwd.dir    = data['home']
             passwd.shell  = data['shell']
@@ -74,6 +68,24 @@ module TargetIO
             "home"     => x.at(5),
             "shell"    => x.at(6),
           }
+        end
+
+        def __getgr(&block)
+          content = ::TargetIO::File.readlines("/etc/group")
+          entries = __parse_group(content)
+          data    = entries.detect(&block)
+
+          group = ::Etc::Group.new
+          if data
+            group.name   = data['name']
+            group.passwd = data['password']
+            group.gid    = data['gid'].to_i
+
+            members      = data['mem'] || ''
+            group.mem    = members.split(',')
+          end
+
+          group
         end
 
         def __parse_group(content)

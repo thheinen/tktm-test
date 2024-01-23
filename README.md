@@ -85,3 +85,16 @@ Usually happens when SSH connection to a newly created instance on AWS does not 
 _Caution:_ sometimes does not remove the faulty instance, which continues to run and incur costs.
 
 Likely cause: Not reverting from the `train` transport to the standard one
+
+## Performance Optimization Ideas
+
+- reuse SSH connection (cuts down overhead)
+- parallelize Ohai plugin execution
+  - Threads? Makes debugging harder
+  - Bulk execute commands (which are Read and side-effect free) and cut output. Might need different Plugin architecture (command map?)
+- use port redirection or similar for the 169.25.169.254 connection
+- cache files (e.g. `/etc/password`) but add invalidations after write(!)
+- cache ohai across runs (for a certain time)
+    - kind of dangerous, as cookbook runs will change this
+    - but as runs are rarely writing, this could speed things up
+    - should invalidate on explicit execution via `ohai` resource then
