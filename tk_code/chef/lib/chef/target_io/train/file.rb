@@ -95,14 +95,20 @@ module TargetIO
           end
 
           def chown(user, group, src)
-            cmd = "chown #{user||''}:#{group||''} #{src}"
+            cmd = "chown #{user}:#{group} #{src}"
+            if !group
+              cmd = "chown #{user} #{src}"
+            elsif !user
+              cmd = "chown :#{group} #{src}"
+            end
+
             Chef::Log.debug cmd
 
             __transport_connection.run_command(cmd)
           end
 
           def chmod(mode_int, file_name)
-            cmd = "chmod #{mode_int} #{file_name}"
+            cmd = sprintf("chmod %o %s", mode_int, file_name)
             Chef::Log.debug cmd
 
             __transport_connection.run_command(cmd)
