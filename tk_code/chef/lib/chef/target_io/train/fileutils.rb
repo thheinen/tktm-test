@@ -9,7 +9,7 @@ module TargetIO
       # (All commands are copied 1:1 from FileUtils source)
       class << self
         def chmod(mode, list, noop: nil, verbose: nil)
-          cmd = sprintf('chmod %s %s', __mode_to_s(mode), list.join(' '))
+          cmd = sprintf('chmod %s %s', __mode_to_s(mode), Array(list).join(' '))
 
           Chef::Log.debug cmd if verbose
           return if noop
@@ -18,7 +18,7 @@ module TargetIO
         end
 
         def chmod_R(mode, list, noop: nil, verbose: nil, force: nil)
-          cmd = sprintf('chmod -R%s %s %s', (force ? 'f' : ''), mode_to_s(mode), list.join(' '))
+          cmd = sprintf('chmod -R%s %s %s', (force ? 'f' : ''), mode_to_s(mode), Array(list).join(' '))
 
           Chef::Log.debug cmd if verbose
           return if noop
@@ -27,7 +27,7 @@ module TargetIO
         end
 
         def chown(user, group, list, noop: nil, verbose: nil)
-          cmd = sprintf('chown %s %s', (group ? "#{user}:#{group}" : user || ':'), list.join(' '))
+          cmd = sprintf('chown %s %s', (group ? "#{user}:#{group}" : user || ':'), Array(list).join(' '))
 
           Chef::Log.debug cmd if verbose
           return if noop
@@ -36,7 +36,7 @@ module TargetIO
         end
 
         def chown_R(user, group, list, noop: nil, verbose: nil, force: nil)
-          cmd = sprintf('chown -R%s %s %s', (force ? 'f' : ''), (group ? "#{user}:#{group}" : user || ':'), list.join(' '))
+          cmd = sprintf('chown -R%s %s %s', (force ? 'f' : ''), (group ? "#{user}:#{group}" : user || ':'), Array(list).join(' '))
 
           Chef::Log.debug cmd if verbose
           return if noop
@@ -158,12 +158,16 @@ module TargetIO
 
         def rmdir(list, parents: nil, noop: nil, verbose: nil)
           return if noop
+          cmd = "rmdir #{Array(list).join ' '}"
 
-          __run_command
+          Chef::Log.debug cmd if verbose
+          return if noop
+
+          __run_command(cmd)
         end
 
         def rm(list, force: nil, noop: nil, verbose: nil)
-          cmd = "rm#{force ? ' -f' : ''} #{list.join ' '}"
+          cmd = "rm#{force ? ' -f' : ''} #{Array(list).join ' '}"
 
           Chef::Log.debug cmd if verbose
           return if noop
@@ -192,7 +196,7 @@ module TargetIO
         alias_method :safe_unlink, :rm_rf
 
         def rmdir(list, parents: nil, noop: nil, verbose: nil)
-          cmd = "rmdir #{parents ? '-p ' : ''}#{list.join ' '}"
+          cmd = "rmdir #{parents ? '-p ' : ''}#{Array(list).join ' '}"
 
           Chef::Log.debug cmd if verbose
           return if noop

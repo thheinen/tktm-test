@@ -14,11 +14,6 @@ module TargetIO
             content[offset, length]
           end
 
-          def delete(file_name)
-            cmd = format('rm %s', file_name)
-            __transport_connection.run_command(cmd)
-          end
-
           # TODO: ~ and relative expansion -> Cptn. Context
           # almost exclusively used with absolute __dir__ or __FILE__ though
           def expand_path(file_name, dir_string = "")
@@ -76,12 +71,12 @@ module TargetIO
 
           def readable?(file_name)
             cmd = format('test -r %s', file_name)
-            __transport_connection.run_command(cmd)
+            __transport_connection.run_command(cmd).exit_status == 0
           end
 
           def writable?(file_name)
             cmd = format('test -w %s', file_name)
-            __transport_connection.run_command(cmd)
+            __transport_connection.run_command(cmd).exit_status == 0
           end
 
           # def ftype(file_name)
@@ -104,39 +99,14 @@ module TargetIO
             __transport_connection.run_command(cmd).stdout.chop
           end
 
-          def chown(user, group, src)
-            cmd = "chown #{user}:#{group} #{src}"
-            if !group
-              cmd = "chown #{user} #{src}"
-            elsif !user
-              cmd = "chown :#{group} #{src}"
-            end
+          def readlink(file_name)
+            raise Errno::EINVAL unless symlink?(file_name)
 
+            cmd = "readlink #{file_name}"
             Chef::Log.debug cmd
 
-            __transport_connection.run_command(cmd)
+            __transport_connection.run_command(cmd).stdout.chop
           end
-
-          def chmod(mode_int, file_name)
-            cmd = sprintf("chmod %o %s", mode_int, file_name)
-            Chef::Log.debug cmd
-
-            __transport_connection.run_command(cmd)
-          end
-
-          def symlink(old_name, new_name)
-            cmd = "ln --symbolic #{old_name} #{new_name}"
-            Chef::Log.debug cmd
-
-            __transport_connection.run_command(cmd)
-          end
-
-          # def readlink(file_name)
-          #   raise Errno::EINVAL unless symlink?(file_name)
-
-          #   link_path = link_path(file_name)
-          #   basename(link_path)
-          # end
 
           # def setgid?(file_name)
           #   mode(file_name) & 04000 != 0
@@ -168,15 +138,21 @@ module TargetIO
 
           ### END: Could be in Train
 
-          # passthrough to Train Connection/file
+          # passthrough or map calls to third parties
           def method_missing(m, *args, &block)
             nonio    = %i[extname join dirname path split]
 
             # TODO: writable?
             passthru = %i[basename directory? exist? exists? file? path pipe? socket? symlink?]
-            redirect = {
+            redirect_train = {
               blockdev?: :block_device?,
               chardev?: :character_device?
+            }
+            redirect_utils = {
+              chown: :chown,
+              chmod: :chmod,
+              symlink: :ln_s,
+              delete: :rm
             }
             filestat = %i[gid group mode mtime owner selinux_label size uid]
 
@@ -202,8 +178,15 @@ module TargetIO
 
               __transport_connection.file(args[0]).stat[m]
 
-            elsif redirect.key?(m)
-              Chef::Log.debug 'File::' + m.to_s + ' redirected to Train.file.' + redirect[m].to_s
+            elsif redirect_utils.key?(m)
+              new_method = redirect_utils[m]
+              Chef::Log.debug 'File::' + m.to_s + ' redirected to TargetIO::FileUtils.' + new_method.to_s
+
+              ::TargetIO::FileUtils.send(new_method, *args) # block?
+
+            elsif redirect_train.key?(m)
+              new_method = redirect_train[m]
+              Chef::Log.debug 'File::' + m.to_s + ' redirected to Train.file.' + new_method.to_s
 
               file_name, other_args = args[0], args[1..]
 

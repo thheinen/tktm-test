@@ -23,6 +23,21 @@ module TargetIO
         def unlink(dir_name)
           ::TargetIO::FileUtils.rmdir(dir_name)
         end
+
+        def entries(dirname)
+          cmd = "ls -1a #{dirname}"
+
+          Chef::Log.debug cmd if verbose
+          __run_command(cmd).stdout.split("\n")
+        end
+
+        def __run_command(cmd)
+          __transport_connection.run_command(cmd)
+        end
+
+        def __transport_connection
+          Chef.run_context&.transport_connection
+        end
       end
     end
   end
