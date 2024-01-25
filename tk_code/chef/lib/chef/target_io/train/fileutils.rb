@@ -121,7 +121,7 @@ module TargetIO
         end
 
         def mkdir(list, mode: nil, noop: nil, verbose: nil)
-          cmd = "mkdir #{mode ? ('-m %03o ' % mode) : ''}#{list.join ' '}"
+          cmd = "mkdir #{mode ? ('-m %03o ' % mode) : ''}#{Array(list).join ' '}"
 
           Chef::Log.debug cmd if verbose
           return if noop
@@ -130,7 +130,7 @@ module TargetIO
         end
 
         def mkdir_p(list, mode: nil, noop: nil, verbose: nil)
-          cmd = "mkdir -p #{mode ? ('-m %03o ' % mode) : ''}#{list.join ' '}"
+          cmd = "mkdir -p #{mode ? ('-m %03o ' % mode) : ''}#{Array(list).join ' '}"
 
           Chef::Log.debug cmd if verbose
           return if noop

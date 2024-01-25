@@ -22,6 +22,7 @@
 #   action :install
 # end
 
+# Works
 file '/tmp/basefile' do
   content 'This is a placeholder file'
   mode '0754'
@@ -29,13 +30,40 @@ file '/tmp/basefile' do
   group 'nogroup'
 end
 
-#template '/tmp/example' do
-#  source 'example.erb'
-#  variables({
-#    test: 'farce'
-#  })
-#  mode '0654'
-#end
+# Works
+template '/tmp/example' do
+  source 'example.erb'
+  variables({
+    example: 'farce'
+  })
+  mode '0654'
+end
+
+# Works, including platform specific selection
+cookbook_file '/tmp/file.txt' do
+  source 'cookbook_file.txt'
+  mode '0543'
+  owner 'nobody'
+  group 'nogroup'
+end
+
+# works
+directory '/tmp/testdir'
+
+# works. Pulls file from worker, not from target node though
+remote_file '/tmp/testdir/index.hml' do
+  source 'https://docs.chef.io/resources/remote_file/index.html'
+end
+
+# works
+remote_directory '/tmp/testdir/1/2/3' do
+  source 'directory'
+end
+
+# in progress
+link '/tmp/index.hmtl' do
+  to '/tmp/testdir/index.hml'
+end
 
 # apt_preference 'deadsnakes' do
 #   pin          'version 3.12'

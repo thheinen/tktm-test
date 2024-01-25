@@ -74,6 +74,16 @@ module TargetIO
             mode(file_name) & 0111 != 0
           end
 
+          def readable?(file_name)
+            cmd = format('test -r %s', file_name)
+            __transport_connection.run_command(cmd)
+          end
+
+          def writable?(file_name)
+            cmd = format('test -w %s', file_name)
+            __transport_connection.run_command(cmd)
+          end
+
           # def ftype(file_name)
           #   case type(file_name)
           #   when :block_device
@@ -155,6 +165,7 @@ module TargetIO
           def method_missing(m, *args, &block)
             nonio    = %i[extname join dirname path split]
 
+            # TODO: writable?
             passthru = %i[basename directory? exist? exists? file? path pipe? socket? symlink?]
             redirect = {
               blockdev?: :block_device?,

@@ -1,5 +1,5 @@
 module TargetIO
-  class Dir
+  class IO
     class << self
       def method_missing(m, *args, &block)
         Chef::Log.debug format('IO::%s(%s)', m.to_s, args.join(', '))

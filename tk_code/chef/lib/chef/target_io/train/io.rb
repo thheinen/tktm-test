@@ -1,3 +1,5 @@
+require_relative 'file'
+
 module TargetIO
   module TrainCompat
     class IO
