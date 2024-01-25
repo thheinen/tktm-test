@@ -124,6 +124,13 @@ module TargetIO
             __transport_connection.run_command(cmd)
           end
 
+          def symlink(old_name, new_name)
+            cmd = "ln --symbolic #{old_name} #{new_name}"
+            Chef::Log.debug cmd
+
+            __transport_connection.run_command(cmd)
+          end
+
           # def readlink(file_name)
           #   raise Errno::EINVAL unless symlink?(file_name)
 
