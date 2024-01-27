@@ -60,9 +60,32 @@ remote_directory '/tmp/testdir/1/2/3' do
   source 'directory'
 end
 
-# in progress
+# works
 link '/tmp/index.hmtl' do
   to '/tmp/testdir/index.hml'
+end
+
+directory '/home/ubuntu/app_name' do
+  action :delete
+end
+
+# mostly works
+# TODO: Unexpected exit status of 128 running ["git checkout 3cad29b8ba4f5568fa84d6e50d7712f08b1f2345"]
+git "/home/ubuntu/app_name" do
+  repository "https://github.com/thheinen/goof"
+  action :checkout
+end
+
+# TODO
+user 'chef' do
+  comment 'Chef'
+  shell '/bin/bash'
+  action :create
+end
+
+group 'chefs' do
+  members 'chef'
+  append true
 end
 
 # apt_preference 'deadsnakes' do

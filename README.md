@@ -98,3 +98,7 @@ Likely cause: Not reverting from the `train` transport to the standard one
     - kind of dangerous, as cookbook runs will change this
     - but as runs are rarely writing, this could speed things up
     - should invalidate on explicit execution via `ohai` resource then
+
+# TODOs
+
+- support with `file_cache_path`, which currently points to the workstation, but needs to point at the target node

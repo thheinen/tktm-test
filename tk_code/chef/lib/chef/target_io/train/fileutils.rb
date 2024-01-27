@@ -180,7 +180,7 @@ module TargetIO
         end
 
         def rm_r(list, force: nil, noop: nil, verbose: nil, secure: nil)
-          cmd = "rm -r#{force ? 'f' : ''} #{list.join ' '}"
+          cmd = "rm -r#{force ? 'f' : ''} #{Array(list).join ' '}"
 
           Chef::Log.debug cmd if verbose
           return if noop

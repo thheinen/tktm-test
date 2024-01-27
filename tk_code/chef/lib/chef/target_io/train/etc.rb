@@ -26,19 +26,17 @@ module TargetIO
           content = ::TargetIO::File.readlines("/etc/passwd")
           entries = __parse_passwd(content)
           data    = entries.detect(&block)
+          raise ArgumentError unless data
 
-          passwd = ::Etc::Passwd.new
-          if data
-            passwd.name   = data['user']
-            passwd.passwd = data['password']
-            passwd.uid    = data['uid'].to_i
-            passwd.gid    = data['gid'].to_i
-            passwd.gecos  = data['desc']
-            passwd.dir    = data['home']
-            passwd.shell  = data['shell']
-          end
-
-          passwd
+          ::Etc::Passwd.new(
+            data['user'],
+            data['password'],
+            data['uid'].to_i,
+            data['gid'].to_i,
+            data['desc'],
+            data['home'],
+            data['shell']
+          )
         end
 
         # Parse /etc/passwd files.
@@ -76,18 +74,14 @@ module TargetIO
           content = ::TargetIO::File.readlines("/etc/group")
           entries = __parse_group(content)
           data    = entries.detect(&block)
+          raise ArgumentError unless data
 
-          group = ::Etc::Group.new
-          if data
-            group.name   = data['name']
-            group.passwd = data['password']
-            group.gid    = data['gid'].to_i
-
-            members      = data['mem'] || ''
-            group.mem    = members.split(',')
-          end
-
-          group
+          ::Etc::Group.new(
+            data['name'],
+            data['password'],
+            data['gid'].to_i,
+            String(data['mem']).split(',')
+          )
         end
 
         def __parse_group(content)

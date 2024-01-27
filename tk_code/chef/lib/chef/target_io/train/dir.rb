@@ -26,9 +26,8 @@ module TargetIO
 
         def entries(dirname)
           cmd = "ls -1a #{dirname}"
-
-          Chef::Log.debug cmd if verbose
-          __run_command(cmd).stdout.split("\n")
+          output = __run_command(cmd).stdout
+          output.split("\n")
         end
 
         def __run_command(cmd)
