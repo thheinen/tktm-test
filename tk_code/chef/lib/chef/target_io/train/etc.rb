@@ -23,7 +23,7 @@ module TargetIO
         end
 
         def __getpw(&block)
-          content = ::TargetIO::File.readlines("/etc/passwd")
+          content = ::TargetIO::File.read("/etc/passwd")
           entries = __parse_passwd(content)
           data    = entries.detect(&block)
           raise ArgumentError unless data
@@ -71,7 +71,7 @@ module TargetIO
         end
 
         def __getgr(&block)
-          content = ::TargetIO::File.readlines("/etc/group")
+          content = ::TargetIO::File.read("/etc/group")
           entries = __parse_group(content)
           data    = entries.detect(&block)
           raise ArgumentError unless data

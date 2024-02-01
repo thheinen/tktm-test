@@ -6,7 +6,7 @@ module TargetIO
         class << self
           # Current Chef providers only call `getspent`
           def getspnam(name)
-            content = ::TargetIO::File.readlines("/etc/shadow")
+            content = ::TargetIO::File.read("/etc/shadow")
             entries = __parse_shadow(content)
             data    = entries.detect { |entry| entry['name'] == name }
             return ::TargetIO::Shadow::Entry.new unless data

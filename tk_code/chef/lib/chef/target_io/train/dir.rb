@@ -12,7 +12,7 @@ module TargetIO
         end
 
         def directory?(dir_name)
-          ::TargetIO::File.directory? dir_name
+          ::TargetIO::File.directory?(dir_name)
         end
 
         def mkdir(dir_name, mode = nil)

@@ -5,7 +5,7 @@ module TargetIO
     class IO
       class << self
         def read(path)
-          TargetIO::File.readlines(path)
+          TargetIO::File.read(path)
         end
       end
     end

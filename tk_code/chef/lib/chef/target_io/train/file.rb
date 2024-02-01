@@ -5,10 +5,8 @@ module TargetIO
         class << self
           # TODO: new
 
-          @@files = {}
-
           def binread(name, length = nil, offset = 0)
-            content = readlines(file_name)
+            content = read(file_name)
             length = content.size - offset if length.nil?
 
             content[offset, length]
@@ -31,12 +29,16 @@ module TargetIO
             raise NotImplementedError, 'ChefIO::Train::File.new is still TODO'
           end
 
+          def read(file_name)
+            readlines(file_name)&.join("\n") || ''
+          end
+
           # TODO: non-block && mode != 'r'
           def open(file_name, mode = "r")
             # Would need to hook into io.close (Closure?)
             raise 'Hell' if mode != 'r' && !block_given?
 
-            content = readlines(file_name)
+            content = read(file_name)
             new_content = content.dup
 
             io = StringIO.new(new_content)
@@ -52,7 +54,6 @@ module TargetIO
 
               if (content != new_content) && !mode.start_with?('r')
                 __transport_connection.file(file_name).content = new_content # Need Train 2.5+
-                @@file[file_name] = new_content
               end
             end
 
@@ -60,7 +61,7 @@ module TargetIO
           end
 
           def readlines(file_name)
-            @@files[file_name] ||= __transport_connection.file(file_name).content
+            __transport_connection.file(file_name).content.split("\n")
           end
 
           ### START Could be in Train::File::...
