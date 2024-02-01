@@ -8,22 +8,35 @@
 #   action [:enable, :start]
 # end
 
-# execute 'add-apt-repository ppa:deadsnakes/ppa --yes'
-# execute 'apt-get clean'
-# execute 'apt-get update'
-# execute 'apt-get install python3.12 --yes'
-#
-# alternatives 'python install 3.12' do
-#   link_name '/usr/bin/python3'
-#   path '/usr/bin/python3.12'
-#   priority 100
-#   action :install
-# end
-#
-# apt_preference 'deadsnakes' do
-#   pin          'version 3.12'
-#   pin_priority '700'
-# end
+#execute 'add-apt-repository ppa:deadsnakes/ppa --yes'
+#execute 'apt-get clean'
+#execute 'apt-get update'
+#execute 'apt-get install python3.12 --yes'
+
+apt_repository 'deadsnakes' do
+  uri 'ppa:deadsnakes/ppa'
+
+  notifies :update, 'apt_update[deadsnakes]', :immediately
+end
+
+apt_update 'deadsnakes' do
+  action :nothing
+end
+
+apt_preference 'deadsnakes' do
+  pin          'version 3.12'
+  pin_priority '700'
+end
+
+apt_package 'python3.12'
+
+alternatives 'python install 3.12' do
+  link_name 'python3'
+  path '/usr/bin/python3.12'
+  priority 100
+  action :install
+end
+
 
 # file '/tmp/basefile' do
 #   content 'This is a placeholder file'
@@ -72,14 +85,14 @@
 #  action :checkout
 #end
 
-user 'chef' do
-  comment 'Chef'
-  shell '/bin/bash'
-  password 'c8ef27dfa69443a3a4f07384de7e7fc2f2e09c7e5cf3e818adfbb9a86c794146' # C0deCan!
-  action :create
-end
-
-group 'chefs' do
-  members 'chef'
-  append true
-end
+# user 'chef' do
+#   comment 'Chef'
+#   shell '/bin/bash'
+#   password 'c8ef27dfa69443a3a4f07384de7e7fc2f2e09c7e5cf3e818adfbb9a86c794146' # C0deCan!
+#   action :create
+# end
+#
+# group 'chefs' do
+#   members 'chef'
+#   append true
+# end
