@@ -2,6 +2,11 @@
 provisioner:
   name: chef_target
   log_level: <%= ENV['CHEF_LOG_LEVEL'] || "auto" %>
+  client_rb:
+    'ohai.disabled_plugins': 
+      # Will fail or report bogus data as executed on runner, not target
+      - EC2
+      - Ec2Metadata
 
 transport:
   name: train
@@ -12,4 +17,4 @@ verifier:
 
 suites:
   - name: default
-    named_run_list: tm_2019
+    named_run_list: default

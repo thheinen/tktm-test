@@ -12,22 +12,40 @@ Alternative: Open in GitHub DevContainers and provide AWS credentials. This will
 
 # Getting Started
 
-- Open in Visual Studio Code
+## Visual Studio Code
+
+- Open folder in Visual Studio Code
 - When asked "Dev Container detected" select to open in Dev Container. Initial build can take 5-10 minutes due to dependencies
 - You will end up in a preconfigured environment and can open a Terminal inside of it (if not done automatically)
+- If you want to use Test Kitchen on AWS, you need to set the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION` environment variables in VS Code
 
-Workaround:
-- execute `./import-patches.sh` initially to apply various patches to the stock projects (Chef, Kitchen, Kitchen Driver, Train, ...)
+## GitHub Codespaces
 
-# Remark on Handling Changes in the Fork Branches
+- Create a Codespace from the repository
+- Add values for the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION` secrets if you want to use Test Kitchen on AWS
 
-Whenever changes in any of the external repositories (usually in the `thheinen/target-mode` branches) occur, you need to rebuild the container and rerun the `import-patches.sh` script
+# Handling Changes in the Fork Branches
+
+Whenever changes in any of the external repositories (usually in the `thheinen/target-mode` branches) occur, you need to rebuild the container. It will automatically execute the `import-patches.sh` script which bakes in the differences from those branches.
 
 You can trigger a rebuild of the container via Ctrl-Shift-P and then "Dev Container: Rebuild Container". It is not necessary to build without cache. After the rebuild, apply the patches with the mentioned script again.
 
+# Local Development
+
+1. Remove the `name: train` transport configuration in `kitchen.yml` before creating a Test Kitchen Instance, this is a known bug (see below)
+2. Ensure the `KITCHEN_LOCAL_YML` variable is set to `kitchen.ec2.yml`. This adds AWS-specific configuration on top of the general cookbook one
+  - the config will limit access to the instance via SSH to the current IP
+  - it also copies the auto-generated SSH key to root to enable root login
+3. Run `kitchen create` in the container terminal window.
+4. Enable the `name: train` transport configuration again and run `kitchen converge` to run the converge in Target Mode
+  - the run will be around 1:30 - 2:00 minutes
+5. Change code
+  - if you need to change code in the upstream projects, you can put the corresponding files into the matching subdirectories in `tk_code`
+  - you can redeploy those with the `reapply-ktt.sh` script or by clicking "Deploy chef_target" in the lower line of VS Code/CodeSpaces (cyan color)
+
 # Known Issues / Remediations
 
-## Test Kitchen: Could not load the 'chef_target_provisioner'
+## Test Kitchen: Could not load the 'chef_target' provisioner
 
 __Error:__
 
@@ -38,7 +56,7 @@ After any `kitchen` command, the following error is shown:
 
 __Reason:__
 
-The required patches were not applied (see "Getting Started" and `import-patches.sh`)
+The required patches were not applied, which is weird (see "Getting Started" and execute `import-patches.sh` against clean Chef Workstation)
 
 ## Test Kitchen: No instances for regex
 
@@ -58,7 +76,7 @@ Execute `export KITCHEN_LOCAL_YML="kitchen.ec2.yml"` and execute the kitchen com
 
 __Error:__
 
-Chef Target Mode provisioner requires a Train-based transport like kitchen-transport-train
+Chef Target Mode provisioner requires a Train-based transport like kitchen-transport-train to converge a machine remotely.
 
 __Reason:__
 
@@ -102,3 +120,7 @@ Likely cause: Not reverting from the `train` transport to the standard one
 # TODOs
 
 - support with `file_cache_path`, which currently points to the workstation, but needs to point at the target node
+- create a fake Net:HTTP using `curl`/`wget` to allow redirected http requests without changing call signature? -> ohai EC2 mixin as example
+- `user` does not get current state right: `Error executing action create on resource 'linux_user[chef]'` gives error code 9
+- `git` does fail first time on `checkout` with error `128` although directory + command seem right. environment variable issue?
+- need to make an alternative for `Shadow`: `Chef::Exceptions::MissingLibrary: linux_user[chef] (tktm_test::tm_2019 line 80) had an error: Chef::Exceptions::MissingLibrary: You must have ruby-shadow installed for password support!`
