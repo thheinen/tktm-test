@@ -28,6 +28,11 @@ class Chef
           load_shadow_options
         end
 
+        def supports_ruby_shadow?
+          # For target mode, ruby-shadow is redirected to a file-based implementation
+          true if !ChefConfig::Config.target_mode?
+        end
+
         def compare_user
           user_changed = super
 
