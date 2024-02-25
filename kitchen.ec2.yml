@@ -24,4 +24,36 @@ driver:
   delete_on_termination: false
 
 platforms:
-  - name: ubuntu-22.04
+  - name: amazon2
+  - name: debian-9
+  - name: debian-10
+  - name: debian-11
+  - name: rhel-7
+  - name: rhel-8
+  - name: rhel-9
+  - name: ubuntu-16.04
+  - name: ubuntu-18.04
+  - name: ubuntu-20.04
+  - name: ubuntu-22.04 # extra to SoW
+
+  # Failed on first try (debug)
+  # - name: freebsd12 # No result on "-12" and Ubuntu 23 this way
+  # - name: freebsd13
+  # - name: freebsd14
+  # - name: amazon2023 # No result
+  # - name: rhel-6 # failed, as EOL need -> "Red Hat Enterprise Linux 6 Extended Life Cycle Support (ELS)"
+
+  # Not in TK-EC2
+  # - name: suse12 # might add TK-EC2 suppport?
+  # - name: suse15 # might add TK-EC2 suppport?
+
+  # Not a platform in SoW
+  # - name: omnios # openindiana/solaris -> "Evaluate support even if testing cannot be accomplished"
+
+  # Not on AWS
+  # - name: arch
+  # - name: openwrt-22
+  # - name: raspian-6.1
+  # - name: tinycore-14
+  # - name: exherbo
+  # - name: aix # -> "Evaluate support even if testing cannot be accomplished"
