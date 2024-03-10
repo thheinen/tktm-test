@@ -25,7 +25,7 @@ class Chef
   class Provider
     class Route < Chef::Provider
 
-      provides :route
+      provides :route, target_mode: true
 
       attr_accessor :is_running
 
