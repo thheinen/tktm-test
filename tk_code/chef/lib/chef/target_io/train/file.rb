@@ -4,7 +4,7 @@ module TargetIO
       # missing: utime(=mtime?)
       class << self
         def foreach(name)
-          raise 'Hell' if !block_given?
+          raise 'TargetIO does not implement block-less File.foreach yet' if !block_given?
 
           contents = readlines(name)
           contents.each { |line| yield(line) }
@@ -18,8 +18,6 @@ module TargetIO
         end
 
         def expand_path(file_name, dir_string = "")
-          # Chef::Util::PathHelper.join ?
-
           require 'pathname' unless defined?(Pathname)
 
           # Will just collapse relative paths inside
@@ -27,19 +25,18 @@ module TargetIO
           clean = pn.cleanpath
         end
 
-        # Needs to hook into io.close (Closure?)
         def new(filename, mode = "r")
-          raise NotImplementedError, 'ChefIO::Train::File.new is still TODO'
+          # Would need to hook into io.close (Closure?)
+          raise NotImplementedError, 'TargetIO does not implement File.new yet'
         end
 
         def read(file_name)
           readlines(file_name)&.join("\n") || ''
         end
 
-        # TODO: non-block && mode != 'r'
         def open(file_name, mode = "r")
           # Would need to hook into io.close (Closure?)
-          raise 'Hell' if mode != 'r' && !block_given?
+          raise 'TargetIO does not implement block-less File.open with modes other than read yet' if mode != 'r' && !block_given?
 
           content = read(file_name)
           new_content = content.dup
@@ -160,17 +157,21 @@ module TargetIO
           }
           filestat = %i[gid group mode owner selinux_label size uid]
 
-          if m == :stat
-            Chef::Log.debug 'File::stat passed to Train.file.stat'
+          if %i[stat lstat].include? m
+            Chef::Log.debug "File::#{m} passed to Train.file.stat"
+
+            follow_symlink = m == :stat
+            tfile = __transport_connection.file(args[0], follow_symlink).stat
 
             require 'ostruct' unless defined?(OpenStruct)
-            OpenStruct.new(__transport_connection.file(args[0]).stat)
+            OpenStruct.new(tfile)
 
+          # Non-IO methods can be issued locally
           elsif nonio.include? m
-            ::File.send(m, *args) # block?
+            ::File.send(m, *args) # TODO: pass block
 
           elsif passthru.include? m
-            Chef::Log.debug 'File::' + m.to_s + ' passed to Train.file.' + m.to_s
+            Chef::Log.debug "File::#{m} passed to Train.file.#{m}"
 
             file_name, other_args = args[0], args[1..]
 
@@ -183,27 +184,27 @@ module TargetIO
             Time.at(timestamp)
 
           elsif filestat.include? m
-            Chef::Log.debug 'File::' + m.to_s + ' passed to Train.file.stat.' + m.to_s
+            Chef::Log.debug "File::#{m} passed to Train.file.stat.#{m}"
 
             __transport_connection.file(args[0]).stat[m]
 
           elsif redirect_utils.key?(m)
             new_method = redirect_utils[m]
-            Chef::Log.debug 'File::' + m.to_s + ' redirected to TargetIO::FileUtils.' + new_method.to_s
+            Chef::Log.debug "File::#{m} redirected to TargetIO::FileUtils.#{new_method}"
 
-            ::TargetIO::FileUtils.send(new_method, *args) # block?
+            ::TargetIO::FileUtils.send(new_method, *args) # TODO: pass block
 
           elsif redirect_train.key?(m)
             new_method = redirect_train[m]
-            Chef::Log.debug 'File::' + m.to_s + ' redirected to Train.file.' + new_method.to_s
+            Chef::Log.debug "File::#{m} redirected to Train.file.#{new_method}"
 
             file_name, other_args = args[0], args[1..]
 
             file = __transport_connection.file(file_name)
-            file.send(redirect[m], *other_args) # block?
+            file.send(redirect[m], *other_args) # TODO: pass block
 
           else
-            raise 'Unsupported File method ' + m.to_s
+            raise "Unsupported File method #{m}"
           end
         end
 
