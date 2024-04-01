@@ -68,8 +68,8 @@ class Chef
       end
 
       def do_backup
-        TargetIO::FileUtils.mkdir_p(::File.dirname(backup_path)) if Chef::Config[:file_backup_path]
-        TargetIO::FileUtils.cp(path, backup_path, preserve: true)
+        FileUtils.mkdir_p(::File.dirname(backup_path)) if Chef::Config[:file_backup_path]
+        FileUtils.cp(path, backup_path, preserve: true)
         Chef::Log.info("#{@new_resource} backed up to #{backup_path}")
       end
 

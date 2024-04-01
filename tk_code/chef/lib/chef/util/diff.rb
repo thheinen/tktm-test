@@ -136,11 +136,11 @@ class Chef
           connection = Chef.run_context&.transport_connection
 
           old_copy = Tempfile.new(old_file)
-          connection.download(old_file, old_copy.path)
+          connection.download(old_file, old_copy.path) if connection.file(old_file).exist?
           old_file = old_copy.path
 
           new_copy = Tempfile.new(new_file)
-          connection.download(new_file, new_copy.path)
+          connection.download(new_file, new_copy.path) if connection.file(new_file).exist?
           new_file = new_copy.path
         end
 
