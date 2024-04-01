@@ -74,7 +74,7 @@ class Chef
       end
 
       def delete_backup(backup_file)
-        TargetIO::FileUtils.rm(backup_file)
+        FileUtils.rm(backup_file)
         Chef::Log.info("#{@new_resource} removed backup at #{backup_file}")
       end
 
