@@ -30,7 +30,7 @@ class Chef
         use_multipackage_api
         use_package_name_for_source
 
-        provides :snap_package, target_mode: true
+        provides :snap_package
 
         def load_current_resource
           @current_resource = Chef::Resource::SnapPackage.new(new_resource.name)
@@ -65,15 +65,6 @@ class Chef
         def install_package(names, versions)
           if new_resource.source
             install_snap_from_source(names, new_resource.source)
-          elsif ChefConfig::Config.target_mode?
-            names.each do |snap|
-              x=snapctl([
-                "install",
-                "--channel=#{new_resource.channel}",
-                new_resource.options,
-                snap
-              ])
-            end
           else
             install_snaps(names, versions)
           end
@@ -92,16 +83,7 @@ class Chef
         end
 
         def remove_package(names, versions)
-          if ChefConfig::Config.target_mode?
-            names.each do |snap|
-              snapctl([
-                "remove",
-                snap
-              ])
-            end
-          else
-            uninstall_snaps(names)
-          end
+          uninstall_snaps(names)
         end
 
         alias purge_package remove_package
@@ -385,18 +367,6 @@ class Chef
         end
 
         def get_latest_package_version(name, channel)
-          if ChefConfig::Config.target_mode?
-            cmd = shell_out("snap info #{name}")
-            latest = cmd.stdout.lines.detect { |l| l.start_with? "  latest/#{new_resource.channel}:"}
-            return unless latest
-
-            latest.split.at(1)
-          else
-            get_latest_package_version_api(name, channel)
-          end
-        end
-
-        def get_latest_package_version_api(name, channel)
           json = call_snap_api("GET", "/v2/find?name=#{name}")
           if json["status-code"] != 200
             raise Chef::Exceptions::Package, json["result"], caller
@@ -431,21 +401,6 @@ class Chef
         end
 
         def get_installed_package_by_name(name)
-          if ChefConfig::Config.target_mode?
-            cmd = shell_out("snap info #{name}")
-            installed = cmd.stdout.lines.detect { |l| l.start_with? "installed:"}
-            return {} unless installed
-
-            {
-              "name" => name,
-              "version" => installed.split.at(1)
-            }
-          else
-            get_installed_package_by_name_api(name)
-          end
-        end
-
-        def get_installed_package_by_name_api(name)
           json = call_snap_api("GET", "/v2/snaps/#{name}")
           # We only allow 200 or 404s
           unless [200, 404].include? json["status-code"]
