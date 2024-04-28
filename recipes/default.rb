@@ -1,6 +1,6 @@
+=begin
 apt_repository 'deadsnakes' do
   uri 'ppa:deadsnakes/ppa'
-
   notifies :update, 'apt_update[deadsnakes]', :immediately
 end
 
@@ -68,7 +68,6 @@ end
 
 directory '/etc/selinux/local'
 
-=begin
 selinux_install 'example'
 
 selinux_module 'myapp' do
@@ -105,7 +104,6 @@ selinux_user 'chef' do
   range 's0'
   roles %w(sysadm_r staff_r)
 end
-=end
 
 ssh_known_hosts_entry 'github.com'
 
@@ -202,4 +200,69 @@ end
 group 'chefs' do
   members 'chef'
   append true
+end
+
+rhsm_errata 'RHSA:2018-1234'
+
+rhsm_errata_level 'example_install_moderate' do
+  errata_level 'moderate'
+end
+
+rhsm_repo 'rhel-7-server-extras-rpms' do
+  action :disable
+end
+=end
+
+=begin
+swap_file '/tmp/swap' do
+  size 1024
+end
+
+service 'ssh' do
+  action [:enable, :start]
+end
+
+apt_update
+
+apt_package 'net-tools'
+
+ifconfig 'Create LO alias' do
+  target '100.64.0.1'
+  device 'lo:0'
+  mask '255.240.0.0'
+end
+
+route '100.64.0.0/12' do
+  device 'lo:0'
+end
+
+http_request 'WhatIsMyIP' do
+  url 'https://checkip.amazonaws.com'
+end
+=end
+
+execute 'mkfs' do
+  command 'mkfs.ext3 /tmp/flatfile'
+
+  action :nothing
+  only_if 'test -e /tmp/flatfile' # Document: Ruby Guards will need TargetIO(?)
+end
+
+execute 'flatfile' do
+  command 'dd if=/dev/zero of=/tmp/flatfile bs=1k count=1024'
+  creates '/tmp/flatfile'
+
+  not_if 'test -e /tmp/flatfile'
+  notifies :run, 'execute[mkfs]', :immediately
+end
+
+mount '/mnt' do
+  device '/tmp/flatfile'
+  enabled true
+end
+
+file '/mnt/loopy' do
+  content <<~TEXT
+    Hello world
+  TEXT
 end
