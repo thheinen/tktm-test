@@ -1,8 +1,10 @@
 =begin
 apt_repository 'deadsnakes' do
   uri 'ppa:deadsnakes/ppa'
+  key 'F23C5A6CF475977595C89F51BA6932366A755776'
   notifies :update, 'apt_update[deadsnakes]', :immediately
 end
+=end
 
 apt_update 'deadsnakes' do
   action :nothing
@@ -23,7 +25,7 @@ alternatives 'python install 3.12' do
 end
 
 # execute 'fix_apt' do
-#   command 'ln -s /usr/lib/python3/apt_pkg.cpython-3*-x86_64-linux-gnu.so apt_pkg.so'
+#   command 'ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-3*-x86_64-linux-gnu.so apt_pkg.so'
 #   creates '/usr/lib/python3/dist-packages/apt_pkg.so'
 #   cwd '/usr/lib/python3/dist-packages'
 # end
@@ -66,6 +68,7 @@ ohai_hint 'example' do
   hint_name 'ec2'
 end
 
+=begin
 directory '/etc/selinux/local'
 
 selinux_install 'example'
@@ -104,37 +107,44 @@ selinux_user 'chef' do
   range 's0'
   roles %w(sysadm_r staff_r)
 end
+=end
 
 ssh_known_hosts_entry 'github.com'
 
-sudo 'admin' do
-  user 'chef'
-end
+# Verification fails: Probably local tempfile + remote verification = "file not found"
+# sudo 'admin' do
+#   user 'chef'
+# end
 
 sysctl 'vm.swappiness' do
   value 19
 end
 
-systemd_unit 'sysstat-collect.timer' do
-  content <<~EOU
-  [Unit]
-  Description=Run system activity accounting tool every 10 minutes
-
-  [Timer]
-  OnCalendar=*:00/10
-
-  [Install]
-  WantedBy=sysstat.service
-  EOU
-
-  action [:create, :enable]
-end
+# Verification fails: Probably local tempfile + remote verification = "file not found"
+# systemd_unit 'sysstat-collect.timer' do
+#   content <<~EOU
+#   [Unit]
+#   Description=Run system activity accounting tool every 10 minutes
+#
+#   [Timer]
+#   OnCalendar=*:00/10
+#
+#   [Install]
+#   WantedBy=sysstat.service
+#   EOU
+#
+#   action [:create, :enable]
+# end
 
 timezone 'UTC'
 
 user_ulimit 'chef' do
   filehandle_limit 8192
 end
+
+directory '/opt/my_sources'
+
+apt_package 'svn'
 
 subversion 'CouchDB Edge' do
   repository 'http://svn.apache.org/repos/asf/couchdb/trunk'
@@ -202,6 +212,7 @@ group 'chefs' do
   append true
 end
 
+=begin
 rhsm_errata 'RHSA:2018-1234'
 
 rhsm_errata_level 'example_install_moderate' do
@@ -213,7 +224,6 @@ rhsm_repo 'rhel-7-server-extras-rpms' do
 end
 =end
 
-=begin
 swap_file '/tmp/swap' do
   size 1024
 end
@@ -239,7 +249,6 @@ end
 http_request 'WhatIsMyIP' do
   url 'https://checkip.amazonaws.com'
 end
-=end
 
 execute 'mkfs' do
   command 'mkfs.ext3 /tmp/flatfile'
@@ -266,3 +275,44 @@ file '/mnt/loopy' do
     Hello world
   TEXT
 end
+
+snap_package 'hello-world' do
+  action :install
+end
+
+=begin
+snap_package 'hello-world' do
+  action :install
+end
+
+snap_package 'hello-world' do
+  action :remove
+end
+=end
+
+=begin
+habitat_install
+
+habitat_sup 'default' do
+  license 'accept'
+end
+
+habitat_package 'core/nginx'
+#habitat_service 'core/nginx'
+
+habitat_config 'nginx.default' do
+  config({
+    worker_count: 2,
+    http: {
+      keepalive_timeout: 120
+    }
+  })
+end
+
+# habitat_service 'core/nginx unload' do
+#   service_name 'core/nginx'
+#   action :unload
+# end
+=end
+
+
