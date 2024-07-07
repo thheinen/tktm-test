@@ -37,7 +37,7 @@ module TargetIO
           # Would need to hook into io.close (Closure?)
           raise "TargetIO does not implement block-less File.open with modes other than read yet" if mode != "r" && !block_given?
 
-          content = read(file_name)
+          content = TargetIO::File.exist?(file_name) ? read(file_name) : ""
           new_content = content.dup
 
           io = StringIO.new(new_content)
@@ -155,7 +155,8 @@ module TargetIO
             chown: :chown,
             chmod: :chmod,
             symlink: :ln_s,
-            delete: :rm
+            delete: :rm,
+            unlink: :rm
           }
           filestat = %i[gid group mode owner selinux_label size uid]
 
