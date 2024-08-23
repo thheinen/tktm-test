@@ -4,7 +4,12 @@ apt_repository 'deadsnakes' do
   key 'F23C5A6CF475977595C89F51BA6932366A755776'
   notifies :update, 'apt_update[deadsnakes]', :immediately
 end
-=end
+
+execute 'fix_apt' do
+  command 'ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-3*-x86_64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so'
+
+  not_if 'test -e /usr/lib/python3/dist-packages/apt_pkg.so'
+end
 
 apt_update 'deadsnakes' do
   action :nothing
@@ -23,12 +28,6 @@ alternatives 'python install 3.12' do
   priority 100
   action :install
 end
-
-# execute 'fix_apt' do
-#   command 'ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-3*-x86_64-linux-gnu.so apt_pkg.so'
-#   creates '/usr/lib/python3/dist-packages/apt_pkg.so'
-#   cwd '/usr/lib/python3/dist-packages'
-# end
 
 chef_client_config 'Create client.rb' do
   chef_server_url 'https://chef.example.dmz'
@@ -60,16 +59,17 @@ kernel_module 'loop' do
   ]
 end
 
-locale 'set system locale' do
-  lang 'en_US.UTF-8'
-end
+# "file: ArgumentError: wrong number of arguments (given 1, expected 0)" without stacktrace
+# locale 'set system locale' do
+#   lang 'en_US.UTF-8'
+# end
 
 ohai_hint 'example' do
   hint_name 'ec2'
 end
-
-=begin
+=end
 directory '/etc/selinux/local'
+=begin
 
 selinux_install 'example'
 
@@ -107,7 +107,6 @@ selinux_user 'chef' do
   range 's0'
   roles %w(sysadm_r staff_r)
 end
-=end
 
 ssh_known_hosts_entry 'github.com'
 
@@ -144,14 +143,14 @@ end
 
 directory '/opt/my_sources'
 
-apt_package 'svn'
+# apt_package 'subversion'
 
-subversion 'CouchDB Edge' do
-  repository 'http://svn.apache.org/repos/asf/couchdb/trunk'
-  revision 'HEAD'
-  destination '/opt/my_sources/couch'
-  action :sync
-end
+# subversion 'CouchDB Edge' do
+#   repository 'http://svn.apache.org/repos/asf/couchdb/trunk'
+#   revision 'HEAD'
+#   destination '/opt/my_sources/couch'
+#   action :sync
+# end
 
 file '/tmp/basefile' do
   content 'This is a placeholder file'
@@ -222,7 +221,6 @@ end
 rhsm_repo 'rhel-7-server-extras-rpms' do
   action :disable
 end
-=end
 
 swap_file '/tmp/swap' do
   size 1024
@@ -236,15 +234,16 @@ apt_update
 
 apt_package 'net-tools'
 
-ifconfig 'Create LO alias' do
-  target '100.64.0.1'
-  device 'lo:0'
-  mask '255.240.0.0'
-end
+# "directory: ArgumentError: wrong number of arguments (given 1, expected 0)" without stacktrace
+# ifconfig 'Create LO alias' do
+#   target '100.64.0.1'
+#   device 'lo:0'
+#   mask '255.240.0.0'
+# end
 
-route '100.64.0.0/12' do
-  device 'lo:0'
-end
+# route '100.64.0.0/12' do
+#   device 'lo:0'
+# end
 
 http_request 'WhatIsMyIP' do
   url 'https://checkip.amazonaws.com'
@@ -268,6 +267,8 @@ end
 mount '/mnt' do
   device '/tmp/flatfile'
   enabled true
+
+  only_if 'mount --fake /tmp/flatfile /mnt' # should be in desired state?
 end
 
 file '/mnt/loopy' do
@@ -288,9 +289,8 @@ end
 snap_package 'hello-world' do
   action :remove
 end
-=end
 
-=begin
+
 habitat_install
 
 habitat_sup 'default' do
@@ -298,7 +298,8 @@ habitat_sup 'default' do
 end
 
 habitat_package 'core/nginx'
-#habitat_service 'core/nginx'
+habitat_service 'core/nginx'
+# Chef::Exceptions::ValidationFailed: Proposed content for /etc/systemd/system/hab-sup.service failed verification :systemd_unit (Chef::Resource::File::Verification::SystemdUnit)
 
 habitat_config 'nginx.default' do
   config({
@@ -309,10 +310,99 @@ habitat_config 'nginx.default' do
   })
 end
 
-# habitat_service 'core/nginx unload' do
-#   service_name 'core/nginx'
-#   action :unload
-# end
+habitat_service 'core/nginx unload' do
+  service_name 'core/nginx'
+  action :unload
+end
+
+
+
+cron 'name_of_cron_entry' do
+  minute '0'
+  hour '8'
+  weekday '6'
+  mailto 'admin@example.com'
+  command 'echo'
+  action :create
+end
+
+cron 'name_of_cron_entry' do
+  user 'hab'
+  minute '0'
+  hour '20'
+  day '*'
+  month '11'
+  weekday '1-5'
+  command 'echo'
+  action :create
+end
 =end
 
+#ohai_hint 'example' do
+#  hint_name 'custom'
+#end
+
+#bash 'foo' do
+#  code 'touch /tmp/this'
+#end
+
+=begin
+chef_data_bag 'data_bag' do
+  action :create
+end
+
+chef_data_bag_item 'data_bag/id' do
+  raw_data({
+    "feature" => true
+  })
+end
+
+chef_environment 'dev' do
+  description 'Dev Environment'
+  default_attributes({ "dev" => 1 })
+end
+=end
+
+#apt_update do
+#  action :update
+#end
+#apt_package 'apt-transport-https'
+#apt_package 'cowsay'
+
+# Should auto-select snap_tm because snap_package doesn't support target_mode
+#snap_package 'hello-world' do
+#  action :install
+#end#
+
+#snap_package 'hello-world' do
+#  action :remove
+#end
+#bash 'Wroomwroom' do
+#  name 'Wroomwroom'
+#  code <<~EOF
+#    cowsay 'wroom' > /tmp/testfile
+#    date >> /tmp/testfile
+#    cowsay 'wroom' >> /tmp/testfile
+#  EOF
+#end
+
+#subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms
+#yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+package "cowsay" do
+  #version "3.7.0"
+end
+
+package "cowsay" do
+  action :remove
+end
+
+selinux_install 'example' do
+  packages %w(policycoreutils selinux-policy selinux-policy-targeted)
+  action :install
+end
+
+timezone "Set the host's timezone to America/Los_Angeles" do
+  timezone 'America/Los_Angeles'
+end
 

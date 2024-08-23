@@ -1,4 +1,5 @@
-FROM chef/chefworkstation
+FROM chef/chefworkstation:24.6.1066
+# 24.8.1068 is the internal build pre habitat_config
 
 ARG DIRENV_VERSION=2.32.3
 
@@ -20,11 +21,9 @@ RUN apt-get update \
     && curl --location-trusted "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" --output /usr/local/bin/direnv --silent \
     && chmod +x /usr/local/bin/direnv
 
-RUN chef gem install kitchen-transport-train
-
 # Apply patches to original Chef tools
 COPY import-patches.sh /tmp
-RUN /bin/bash /tmp/import-patches.sh
+RUN /bin/bash /tmp/import-patches.sh > /opt/chef-workstation/patches.info
 
 # User configuration
 RUN groupadd --gid $USER_GID $USERNAME \

@@ -21,6 +21,7 @@ driver:
   user_data: |
     #!/bin/bash
     sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
+    sudo cp /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys
   delete_on_termination: false
 
 platforms:

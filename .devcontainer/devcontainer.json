@@ -1,10 +1,7 @@
 {
     "name": "Chef-Workstation",
     "build": {
-      "dockerfile": "Dockerfile",
-      "args": {
-        "CHEFWS_VERSION": "23.9.1050"
-      }
+      "dockerfile": "Dockerfile"
     },
     "features": {
       "ghcr.io/devcontainers/features/aws-cli:1": {},
@@ -77,6 +74,6 @@
       "PATH": "/home/vscode/bin:/home/vscode/.local/bin:${containerEnv:PATH}",
       "CHEF_LICENSE": "accept-silent"
     },
-    "postCreateCommand": "gem install kitchen-transport-train; /bin/bash ./reapply-ktt.sh",
-    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true"
+    "postCreateCommand": "gem install kitchen-transport-train",
+    "postAttachCommand": "direnv allow ${containerWorkspaceFolder} || true; alias sshk=\"ssh -i .kitchen/*pem root@$(grep hostname .kitchen/*.yml| cut -b11-)\""
   }

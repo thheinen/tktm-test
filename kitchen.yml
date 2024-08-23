@@ -1,16 +1,24 @@
 ---
 provisioner:
+  # New provisioner which plugs into TestKitchen and calls Chef
+  # with the right CLI arguments and train config (see transport)
   name: chef_target
-  log_level: <%= ENV['CHEF_LOG_LEVEL'] || "auto" %>
+
+  log_level: info # <%= ENV['CHEF_LOG_LEVEL'] || "auto" %>
   client_rb:
-    'ohai.disabled_plugins': 
+    'ohai.disabled_plugins':
       # Will fail or report bogus data as executed on runner, not target
       - EC2
       - Ec2Metadata
 
 transport:
+  # Target Mode usually needs root and a kitchen bug overrides "user" by
+  # standard platform login
+  train_user: root
+  # This _requires_ kitchen-transport-train.
+  # Due to this, we can extract the train configuration to reuse
+  # with the `chef_target`provisioner.
   name: train
-  user: root
 
 verifier:
   name: inspec
