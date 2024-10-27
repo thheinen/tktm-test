@@ -19,7 +19,6 @@ require_relative "../shellout"
 require "chef-utils" unless defined?(ChefUtils)
 require "chef-utils/dsl/default_paths"
 require "chef-utils/internal"
-require "ostruct" unless defined?(OpenStruct)
 
 module Mixlib
   class ShellOut
@@ -151,23 +150,16 @@ module Mixlib
       # @return [String] merged string
       #
       def __join_whitespace(*args)
-        args.flatten.map { |e| e + (e.rstrip == e ? ' ' : '')}.join
+        args.flatten.map { |e| e + (e.rstrip == e ? " " : "") }.join
       end
 
       def __shell_out_command(*args, **options)
         if __transport_connection
-          # POSIX compatible (2.7.4)
-          # FIXME: Should be in Train for parity, but would need to be in
-          #        base_connection, which is a bit tough.
-          # if options[:input]
-          #   args = Array(args)
-          #   args.concat ["<<<'COMMANDINPUT'\n", options[:input] + "\n", "COMMANDINPUT\n"]
-          #   logger.debug __join_whitespace(args)
-          # end
           command = __join_whitespace(args)
-          if !ChefUtils.windows?
+          unless ChefUtils.windows?
             if options[:cwd]
-              command.prepend sprintf("cd %s;", options[:cwd])
+              # as `timeout` is used, commands need to be executed in a subshell
+              command = "sh -c 'cd #{options[:cwd]}; #{command}'"
             end
 
             if options[:input]
@@ -176,6 +168,8 @@ module Mixlib
               logger.debug __join_whitespace(args)
             end
           end
+
+          # FIXME: train should accept run_command(*args)
           FakeShellOut.new(args, options, __transport_connection.run_command(command, options))
         else
           cmd = if options.empty?

@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require "yaml"
+
+glob = ARGV.first
+files = Dir.glob(".kitchen/*#{glob}*").first[0..-5]
+data = YAML.load_file(files + ".yml")
+
+Process.exec sprintf("ssh -i %s.pem root@%s", files, data["hostname"])

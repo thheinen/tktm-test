@@ -20,8 +20,8 @@ driver:
   security_group_cidr_ip: <%= require 'open-uri'; URI('http://checkip.amazonaws.com').read.chop %>/32
   user_data: |
     #!/bin/bash
-    sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
     sudo cp /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys
+    sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
   delete_on_termination: false
 
 platforms:

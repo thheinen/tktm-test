@@ -67,9 +67,9 @@ end
 ohai_hint 'example' do
   hint_name 'ec2'
 end
-=end
+
 directory '/etc/selinux/local'
-=begin
+
 
 selinux_install 'example'
 
@@ -361,7 +361,6 @@ chef_environment 'dev' do
   description 'Dev Environment'
   default_attributes({ "dev" => 1 })
 end
-=end
 
 #apt_update do
 #  action :update
@@ -405,4 +404,228 @@ end
 timezone "Set the host's timezone to America/Los_Angeles" do
   timezone 'America/Los_Angeles'
 end
+=end
 
+# Chef::Exceptions::InsufficientPermissions
+#apt_update 'update' do
+#  action :update
+#end
+#package 'nginx' do # apt_package
+#  action :install
+#end
+=begin
+  * apt_update[update] action update[2024-09-13T12:21:09+00:00] INFO: Processing apt_update[update] action update (tktm_test::default line 416)
+
+    * directory[/var/lib/apt/periodic] action create[2024-09-13T12:21:09+00:00] INFO: Processing directory[/var/lib/apt/periodic] action create (tktm_test::default line 72)
+ (up to date)
+    * directory[/etc/apt/apt.conf.d] action create[2024-09-13T12:21:09+00:00] INFO: Processing directory[/etc/apt/apt.conf.d] action create (tktm_test::default line 72)
+ (up to date)
+    * file[/etc/apt/apt.conf.d/15update-stamp] action create_if_missing[2024-09-13T12:21:10+00:00] INFO: Processing file[/etc/apt/apt.conf.d/15update-stamp] action create_if_missing (tktm_test::default line 77)
+ (up to date)
+    * execute[apt-get -q update] action run[2024-09-13T12:21:11+00:00] INFO: Processing execute[apt-get -q update] action run (tktm_test::default line 82)
+[2024-09-13T12:21:32+00:00] INFO: execute[apt-get -q update] ran successfully
+
+      - execute ["apt-get", "-q", "update"]
+    - force update new lists of packages
+  * apt_package[nginx] action install[2024-09-13T12:21:32+00:00] INFO: Processing apt_package[nginx] action install (tktm_test::default line 419)
+[2024-09-13T12:21:43+00:00] INFO: apt_package[nginx] installed nginx at 1.18.0-0ubuntu1.5
+
+    - install version 1.18.0-0ubuntu1.5 of package nginx
+=end
+
+# A40
+# error: Chef::Exceptions::CookbookNotFound: Cookbook @recipe_files not found.
+#template '/etc/ssh/ssh_known_hosts' do
+#  source 'ssh_known_hosts.erb' # This refers to the ERB file in templates/default
+#  owner 'root'
+#  group 'root'
+#  mode '0644'
+#  action :create
+#end
+=begin
+  * template[/etc/ssh/ssh_known_hosts] action create[2024-09-13T12:21:45+00:00] INFO: Processing template[/etc/ssh/ssh_known_hosts] action create (tktm_test::default line 431)
+[2024-09-13T12:21:45+00:00] INFO: template[/etc/ssh/ssh_known_hosts] created file /etc/ssh/ssh_known_hosts
+
+    - create new file /etc/ssh/ssh_known_hosts[2024-09-13T12:21:47+00:00] INFO: template[/etc/ssh/ssh_known_hosts] updated file contents /etc/ssh/ssh_known_hosts
+
+    - update content in file /etc/ssh/ssh_known_hosts from none to e3b0c4
+    (no diff)[2024-09-13T12:21:47+00:00] INFO: template[/etc/ssh/ssh_known_hosts] owner changed to 0
+[2024-09-13T12:21:47+00:00] INFO: template[/etc/ssh/ssh_known_hosts] group changed to 0
+[2024-09-13T12:21:47+00:00] INFO: template[/etc/ssh/ssh_known_hosts] mode changed to 644
+
+    - change mode from '' to '0644'
+    - change owner from '' to 'root'
+    - change group from '' to 'root'
+=end
+
+
+# error: Mixlib::ShellOut::ShellCommandFailed: Unexpected exit status of 2 running ["useradd", "-c", "Deploy User", "-s", "/bin/bash", "-d", "/home/deploy", "-m", "deploy"]
+#user 'deploy' do
+#  comment 'Deploy User' # if this has a space, it'll explode -> general bug!
+#  home '/home/deploy'
+#  shell '/bin/bash'
+#  manage_home true
+#  action :create
+#end
+# Confirmed.
+# Unexpected exit status of 2 running ["useradd", "-c", "Deploy User", "-s", "/bin/bash", "-d", "/home/deploy", "-m", "deploy"]: Usage: useradd [options] LOGIN
+#  useradd -D
+#  useradd -D [options]
+
+# A44
+#systemd_unit 'my_custom_service.service' do
+#  content(
+#    {
+#      'Unit' => {
+#        'Description' => 'My Custom Service',
+#        'After' => 'network.target',
+#      },
+#      'Service' => {
+#        'ExecStart' => '/usr/bin/my_custom_script.sh',
+#        'Restart' => 'on-failure',
+#      },
+#      'Install' => {
+#        'WantedBy' => 'multi-user.target',
+#      },
+#    }
+#  )
+#  action [:create, :enable, :start]
+#end
+
+# NA2
+# chef_data_bag 'data_bag' do
+#   action :create
+# end
+# chef_data_bag_item 'data_bag/id' do
+#   raw_data({
+#     "feature" => true
+#   })
+# end
+
+# NA6 -> this works. just slow
+#user 'hab' do
+#  gid 'hab'
+#  action :modify
+#end
+#habitat_install
+#habitat_package 'vim' do
+#  action :install
+#  version '8.2.2825'
+#  channel 'stable'
+#end
+
+# NA7
+# apt_update 'now' do
+#   action :update
+# end
+# package 'ksh'
+# ksh 'hello world' do # just wasn't installed
+#   code <<-EOH
+#     echo "Hello world!"
+#     echo "Current directory: " $cwd
+#   EOH
+# end
+
+# NA9
+# Define an InSpec input variable for use in compliance profiles
+#inspec_input 'openssh' do
+#  action :add
+#end
+=begin
+RuntimeError: inspec_input[openssh] (tktm_test::default line 531) had an error: RuntimeError: include_input was given a nil value
+=end
+
+# NA12
+# package 'csh'
+# csh 'run_example_script' do # just needed the package
+#   code <<-EOH
+#     echo Yo
+#   EOH
+#   action :run
+# end
+
+=begin
+# fixed
+package 'git'
+git '/tmp/chef-repo' do
+  repository 'https://github.com/chef/chef.git'
+  revision 'main'
+  action :sync
+end
+
+# no issue
+directory '/tmp/cookbooks'
+cookbook_file '/tmp/cookbooks/config.conf' do
+  source 'config.conf'
+  owner 'root'
+  group 'root'
+  mode '0644'
+  action :create
+end
+
+# no issue
+template '/etc/ssh/ssh_known_hosts' do
+  source 'ssh_known_hosts.erb' # This refers to the ERB file in templates/default
+  owner 'root'
+  group 'root'
+  mode '0644'
+  action :create
+end
+
+# fixed
+sudo 'webadmin_apache' do
+  user 'root'
+  commands ['/bin/systemctl restart httpd']
+  nopasswd true
+  action :create
+end
+
+# no issue... if you name it "crond" on redhat
+service 'crond' do
+  action %i(enable start)
+end
+
+cron 'daily_script' do
+  minute '0'
+  hour '0'
+  command '/tmp/local/bin/daily_script.sh'
+  user 'ec2-user' # "ubuntu" or "ec2-user"
+  action :create
+end
+
+# no issues
+package 'httpd' do
+  action :install
+end
+
+selinux_install 'selinux' do
+  action :install
+end
+
+rhsm_register 'register_with_rhsm' do
+  username 'chnadraredhat'
+  password 'Dev@progress123'
+  auto_attach true
+  action :register
+end
+
+rhsm_subscription 'attach_subscription' do
+  pool_id '2c94582e918fd1090191db3a9e083436'
+  action :attach
+end
+=end
+
+
+perl 'hello world' do
+  code <<-EOH
+    print "Hello world! From Chef and Perl.";
+  EOH
+end
+# Mixlib::ShellOut::ShellCommandFailed: perl[hello world] (tktm_test::default line 554) had an error: Mixlib::ShellOut::ShellCommandFailed: Unexpected exit status of 255 running ["\"perl\" "]: Bareword found where operator expected at - line 1, near """Hello"
+
+python 'hello world' do
+  code <<~EOH
+    print("Hello world! From Chef and Python.")
+  EOH
+  interpreter 'python3'
+end
